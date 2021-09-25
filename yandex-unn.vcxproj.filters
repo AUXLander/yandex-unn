@@ -27,6 +27,9 @@
     <ClCompile Include="t1.cpp">
       <Filter>tasks</Filter>
     </ClCompile>
+    <ClCompile Include="t2.cpp">
+      <Filter>tasks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="task.h">
@@ -34,6 +37,9 @@
     </ClInclude>
     <ClInclude Include="test.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="t2.h">
+      <Filter>tasks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

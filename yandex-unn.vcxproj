@@ -147,8 +147,10 @@
     <ClCompile Include="source.cpp" />
     <ClCompile Include="t1.cpp" />
     <ClCompile Include="t1.h" />
+    <ClCompile Include="t2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="t2.h" />
     <ClInclude Include="task.h" />
     <ClInclude Include="test.h" />
   </ItemGroup>
