@@ -1,9 +1,0 @@
-﻿  source.cpp
-  t1.cpp
-  t1.h
-Release\t1.obj : warning LNK4042: объект указан более одного раза; лишние не учитываются
-  Создание кода
-  Previous IPDB not found, fall back to full compilation.
-  All 387 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Создание кода завершено
-  yandex-unn.vcxproj -> E:\UserData\Projects\Yandex\yandex-unn\Release\yandex-unn.exe
