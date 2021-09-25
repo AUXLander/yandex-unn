@@ -54,7 +54,7 @@ class Test
 
 			if (b_result == false)
 			{
-				std::cout << "Result: " << substr << " but was expected: " << result << std::endl;
+				std::cout << "Result: " << substr << ", expected: " << result << std::endl;
 			}
 			else
 			{

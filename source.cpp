@@ -8,7 +8,9 @@
 #include "test.h"
 #include "t1.h"
 
-T1 t1;
+Test test(std::cin, std::cout);
+
+T1 t1(&test);
 
 void tmain(int argc, char* argv[])
 {
@@ -17,8 +19,6 @@ void tmain(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-	Test test(std::cin, std::cout);
-	
 	t1.selftest();
 
 	return 0;

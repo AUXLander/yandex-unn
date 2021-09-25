@@ -6,10 +6,14 @@
 #include "task.h"
 #include "test.h"
 
+/*
+* 
+*	Longest switchable subsequence
+* 
+*/
+
 class T1: public Task
 {
-	std::string subrun(const int length, std::stack<int> stack);
-
 	void test(Test* const reference) override final;
 	void main(std::istream& input, std::ostream& output) override final;
 
