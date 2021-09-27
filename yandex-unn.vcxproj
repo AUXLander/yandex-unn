@@ -145,13 +145,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source.cpp" />
-    <ClCompile Include="t1.cpp" />
-    <ClCompile Include="t1.h" />
-    <ClCompile Include="t2.cpp" />
+    <ClCompile Include="task\week-1\task-1\w1t1.cpp" />
+    <ClCompile Include="task\week-1\task-2\W1T2.cpp" />
+    <ClCompile Include="task\week-1\task-3\w1t3.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="t2.h" />
-    <ClInclude Include="task.h" />
+    <ClInclude Include="task\week-1\task-1\w1t1.h" />
+    <ClInclude Include="task\week-1\task-2\W1T2.h" />
+    <ClInclude Include="task\week-1\task-3\w1t3.h" />
     <ClInclude Include="test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

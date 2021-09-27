@@ -23,6 +23,16 @@ protected:
 
 		m_index++;
 
+		if (input == std::istream_iterator<T, char>())
+		{
+			if constexpr (std::is_same<T, char>())
+			{
+				return '\0';
+			}
+
+			return static_cast<T>(NULL);
+		}
+
 		return *input;
 	}
 

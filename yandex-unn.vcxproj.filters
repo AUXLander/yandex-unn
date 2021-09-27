@@ -13,33 +13,48 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="tasks">
-      <UniqueIdentifier>{c92155df-9cb4-4824-9339-417e51ad535e}</UniqueIdentifier>
+    <Filter Include="Исходные файлы\week-1">
+      <UniqueIdentifier>{8fa36f40-aa4e-4d0a-9bf8-11ce1c2a1def}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\week-1\task-1">
+      <UniqueIdentifier>{d00cd341-2d38-47fb-bb08-1be504681eec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\week-1\task-2">
+      <UniqueIdentifier>{696cbf6a-0981-4cf2-a2c6-772738eae157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\week-1\task-3">
+      <UniqueIdentifier>{505b355a-71d5-42b3-9bcc-3254204b14d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\week-1\task-4">
+      <UniqueIdentifier>{bd911c8a-6a68-4bc2-a1f6-6292fc8fc197}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="t1.h">
-      <Filter>tasks</Filter>
-    </ClCompile>
     <ClCompile Include="source.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="t1.cpp">
-      <Filter>tasks</Filter>
+    <ClCompile Include="task\week-1\task-1\w1t1.cpp">
+      <Filter>Исходные файлы\week-1\task-1</Filter>
     </ClCompile>
-    <ClCompile Include="t2.cpp">
-      <Filter>tasks</Filter>
+    <ClCompile Include="task\week-1\task-3\w1t3.cpp">
+      <Filter>Исходные файлы\week-1\task-3</Filter>
+    </ClCompile>
+    <ClCompile Include="task\week-1\task-2\W1T2.cpp">
+      <Filter>Исходные файлы\week-1\task-2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="task.h">
-      <Filter>tasks</Filter>
-    </ClInclude>
     <ClInclude Include="test.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="t2.h">
-      <Filter>tasks</Filter>
+    <ClInclude Include="task\week-1\task-1\w1t1.h">
+      <Filter>Исходные файлы\week-1\task-1</Filter>
+    </ClInclude>
+    <ClInclude Include="task\week-1\task-3\w1t3.h">
+      <Filter>Исходные файлы\week-1\task-3</Filter>
+    </ClInclude>
+    <ClInclude Include="task\week-1\task-2\W1T2.h">
+      <Filter>Исходные файлы\week-1\task-2</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,8 +4,8 @@
 #include <stack>
 #include <cmath>
 
-#include "test.h"
-#include "t1.h"
+#include "../../../test.h"
+#include "w1t1.h"
 
 struct Node
 {
@@ -36,7 +36,7 @@ struct Node
 	}
 };
 
-void T1::main(std::istream& input, std::ostream& output)
+void W1T1::main(std::istream& input, std::ostream& output)
 {
 	std::stack<int> stack;
 	std::istream_iterator<int, char> istream(input);
@@ -109,7 +109,7 @@ void T1::main(std::istream& input, std::ostream& output)
 	}
 }
 
-void T1::test(Test* const reference)
+void W1T1::test(Test* const reference)
 {
 	if (reference != nullptr)
 	{

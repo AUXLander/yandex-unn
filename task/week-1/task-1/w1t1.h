@@ -4,23 +4,23 @@
 #include <string>
 #include <stack>
 
-#include "task.h"
-#include "test.h"
+#include "../../../task.h"
+#include "../../../test.h"
 
 /*
-*
+* 
 *	Longest switchable subsequence
-*
+* 
 */
 
-class T2 : public Task
+class W1T1: public Task
 {
 	void test(Test* const reference) override final;
 	void main(std::istream& input, std::ostream& output) override final;
 
 public:
 
-	T2() : Task(nullptr) {}
-	T2(Test* const reference) : Task(reference) {}
+	W1T1() : Task(nullptr) {}
+	W1T1(Test* const reference) : Task(reference) {}
 
 };
