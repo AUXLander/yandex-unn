@@ -1,5 +1,10 @@
 #define DEBUG_rW1T1
 
+#ifndef DEBUG_rW1T1
+#define RELEASE
+#endif
+
+
 #include <iostream>
 #include <iterator>
 #include <string>

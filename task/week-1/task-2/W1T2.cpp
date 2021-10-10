@@ -11,7 +11,7 @@ void W1T2::main(std::istream& input, std::ostream& output)
 
 	char cnext = next<char>(istream);
 
-	while (cnext != '\n')
+	while ((cnext != '\n') && (cnext != '\0'))
 	{
 		const symbol<char> snext(cnext);
 
