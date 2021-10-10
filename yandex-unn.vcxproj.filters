@@ -42,6 +42,9 @@
     <ClCompile Include="task\week-1\task-2\W1T2.cpp">
       <Filter>Исходные файлы\week-1\task-2</Filter>
     </ClCompile>
+    <ClCompile Include="task\week-1\task-4\w1t4.cpp">
+      <Filter>Исходные файлы\week-1\task-4</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="test.h">
@@ -55,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="task\week-1\task-2\W1T2.h">
       <Filter>Исходные файлы\week-1\task-2</Filter>
+    </ClInclude>
+    <ClInclude Include="task\week-1\task-4\w1t4.h">
+      <Filter>Исходные файлы\week-1\task-4</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
