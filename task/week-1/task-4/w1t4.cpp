@@ -1,109 +1,46 @@
 #include "w1t4.h"
 
-#include <map>
-
-#include <set>
 #include <vector>
 #include <algorithm>
 #include <iterator>
 #include <limits>
-#include <iomanip>
 
-#include <random>
-
-template<class T>
-struct Point
+int W1T4::countPointsRadius(const std::vector<PointT>& points, const double radius)
 {
-	using value_type = T;
+	auto lspanIterator = buffer.begin();
+	auto rspanIterator = buffer.rbegin();
 
-	value_type x;
-	value_type y;
-
-	inline bool operator<(const Point& other) const
-	{
-		return (this->x < other.x) || ((this->x == other.x) && (this->y < other.y));
-	}
-};
-
-template<class T>
-struct Span
-{
-	using value_type = T;
-
-	struct RadiusDirection
-	{
-		using value_type = size_t;
-		enum Direction : value_type
-		{
-			left = 0, right = 1
-		};
-
-		// The power of Direction set;
-		constexpr static size_t power { 2U };
-
-	private:
-		Direction direction;
-	public:
-
-		RadiusDirection(const RadiusDirection::Direction direction) : direction(direction) {}
-
-		inline value_type transformation() const
-		{
-			return static_cast<value_type>(this->direction);
-		}
-	};
-
-public:
-	value_type xoffset;
-	RadiusDirection direction;
-
-	Span() = delete;
-	Span(const value_type xoffset, const RadiusDirection direction) : xoffset(xoffset), direction(direction) {}
-
-	inline bool operator<(const Span<T>& other) const
-	{
-		return this->xoffset < other.xoffset;
-	}
-};
-
-using SpanT = Span<double>;
-using PointT = Point<double>;
-
-void calculateSpans(const std::vector<PointT>& points, std::multiset<SpanT>& spans, const double radius)
-{
-	for (const auto& point : points) // 2 * n * log(n)
+	for (const auto& point : points)
 	{
 		const auto xsqr = (radius * radius) - (point.y * point.y);
 
 		const bool isComplex = (xsqr < 0.0);
 
-		const auto x = isComplex ? 0.0 : std::sqrt(xsqr);
+		const auto loffset = isComplex ? std::numeric_limits<double>::max() : point.x - std::sqrt(xsqr);
+		const auto roffset = isComplex ? std::numeric_limits<double>::max() : point.x + std::sqrt(xsqr);
 
-		const auto loffset = isComplex ? std::numeric_limits<double>::max() : point.x - x;
-		const auto roffset = isComplex ? std::numeric_limits<double>::max() : point.x + x;
+		lspanIterator->set(loffset, SpanT::RadiusDirection::left);
+		rspanIterator->set(roffset, SpanT::RadiusDirection::right);
 
-		const auto& lspan = spans.emplace(loffset, SpanT::RadiusDirection::left); // log(n)
-		const auto& rspan = spans.emplace(roffset, SpanT::RadiusDirection::right); // log(n)
+		std::advance(lspanIterator, 1U);
+		std::advance(rspanIterator, 1U);
 	}
-}
 
-size_t calculateK(const std::multiset<SpanT>& spans)
-{
-	constexpr static size_t positive_accumulation[SpanT::RadiusDirection::power] = { 1U, 0U };
-	constexpr static size_t negative_accumulation[SpanT::RadiusDirection::power] = { 0U, 1U	};
-	
-	size_t max_accumulated = 0;
-	size_t accumulated = 0;
+	std::sort(buffer.begin(), buffer.end());
 
-	for (const auto& span : spans)
+	constexpr static long int accumulation[SpanT::RadiusDirection::size] = { +1, -1 };
+
+	int max_accumulated = 0;
+	int accumulated = 0;
+
+	for (const auto& span : buffer)
 	{
 		if (span.xoffset > 2001.0)
 		{
 			break;
 		}
 
-		accumulated += positive_accumulation[span.direction.transformation()];
-		accumulated -= negative_accumulation[span.direction.transformation()];
+		accumulated += accumulation[span.direction.transformation()];
 
 		max_accumulated = std::max(max_accumulated, accumulated);
 	}
@@ -113,28 +50,56 @@ size_t calculateK(const std::multiset<SpanT>& spans)
 
 void W1T4::test(Test* const reference)
 {
-	constexpr double precision = 1e-4;
-	const std::vector<PointT> points = {
-		{ 0.0,  5.0},
-		{ 3.0,  4.0},
-		{-4.0, -3.0}
-	};
+	if (reference != nullptr)
+	{
+		reference->open(*this)
+			.input("3 3\n0 5\n3 4\n-4 -3\n")
+			.expect("5.000000", 5); // 5.000
 
-	std::multiset<SpanT> spans;
+		reference->open(*this)
+			.input("3 2\n0 1\n2 1\n1 100\n")
+			.expect("1.414246", 5); // 1.414
+	}
+}
+
+void W1T4::main(std::istream& input, std::ostream& output)
+{
+	output << std::fixed;
+	output.precision(6);
+
+	std::vector<PointT> points;
+
+	std::istream_iterator<int, char> istream(input);
+
+	const int size = next(istream);
+	const int requested_count = next(istream);
+
+	points.reserve(size);
+
+	for (int index = 0; index < size; index++)
+	{
+		const auto x = next(istream);
+		const auto y = next(istream);
+
+		points.emplace_back(x, y);
+	}
+
+	initialize(points.size());
 
 	double start = 0.0;
 	double end = 1415.0;
 	double radius;
 
-	const size_t k = 3U;
+	const auto check = [this, &points, &requested_count] (const double radius) -> bool
+	{
+		return countPointsRadius(points, radius) >= requested_count;
+	};
 
 	while ((end - start) > precision)
 	{
 		radius = (end + start) * 0.5;
 
-		calculateSpans(points, spans, radius);
-
-		if (calculateK(spans) >= k)
+		if (check(radius) == true)
 		{
 			end = radius;
 		}
@@ -142,17 +107,7 @@ void W1T4::test(Test* const reference)
 		{
 			start = radius;
 		}
-
-		spans.clear();
 	}
 
-	std::cout << std::fixed;
-	std::cout.precision(6);
-
-	std::cout << "R: " << end << std::endl;
-}
-
-void W1T4::main(std::istream& input, std::ostream& output)
-{
-
+	output << end << std::endl;
 }

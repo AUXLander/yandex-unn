@@ -46,22 +46,43 @@ class Test
 			return (*this);
 		}
 
-		bool expect(const std::string result) const
+		bool expect(const std::string result, const int precision = -1) const
 		{
-			const auto substr = m_result.substr(m_size_before, m_size_after - m_size_before);
-
-			const bool b_result = (m_size_after > m_size_before) && (result == substr);
-
-			if (b_result == false)
+			if (precision == -1)
 			{
-				std::cout << "Result: " << substr << ", expected: " << result << std::endl;
+				const auto substr = m_result.substr(m_size_before, m_size_after - m_size_before);
+
+				const bool b_result = (m_size_after > m_size_before) && (result == substr);
+
+				if (b_result == false)
+				{
+					std::cout << "Result: " << substr << ", expected: " << result << std::endl;
+				}
+				else
+				{
+					std::cout << "Test passed!" << std::endl;
+				}
+
+				return b_result;
 			}
 			else
 			{
-				std::cout << "Test passed!" << std::endl;
-			}
+				const auto substr = m_result.substr(m_size_before, precision);
+				const auto subres = result.substr(0, precision);
 
-			return b_result;
+				const bool b_result = (m_size_after > m_size_before) && (subres == substr);
+
+				if (b_result == false)
+				{
+					std::cout << "Result: " << substr << ", expected: " << result << std::endl;
+				}
+				else
+				{
+					std::cout << "Test passed!" << std::endl;
+				}
+
+				return b_result;
+			}
 		}
 	};
 
