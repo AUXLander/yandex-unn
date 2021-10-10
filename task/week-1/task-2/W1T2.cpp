@@ -3,7 +3,6 @@
 
 #include "W1T2.h"
 
-
 void W1T2::main(std::istream& input, std::ostream& output)
 {
 	size_t index = 0;
@@ -12,7 +11,7 @@ void W1T2::main(std::istream& input, std::ostream& output)
 
 	char cnext = next<char>(istream);
 
-	while (cnext != '\0')
+	while (cnext != '\n')
 	{
 		const symbol<char> snext(cnext);
 

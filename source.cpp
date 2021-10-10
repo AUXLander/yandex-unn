@@ -24,12 +24,12 @@ void tmain(int argc, char* argv[])
 	t1.run(std::cin, std::cout);	
 }
 
-int main(int argc, char* argv[])
+int zmain(int argc, char* argv[])
 {
 	t1.selftest();
-	t2.selftest();
-	t3.selftest();
-	t4.selftest();
+	//t2.selftest();
+	//t3.selftest();
+	//t4.selftest();
 
 	return 0;
 }

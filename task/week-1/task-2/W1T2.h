@@ -4,6 +4,7 @@
 
 #include "../../../task.h"
 #include "../../../test.h"
+
 class W1T2 : public Task
 {
 	enum class rule
@@ -52,10 +53,6 @@ class W1T2 : public Task
 
 public:	
 
-
-
-
-	
 	W1T2() : Task(nullptr) {}
 	W1T2(Test* const reference) : Task(reference) {}
 
