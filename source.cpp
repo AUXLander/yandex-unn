@@ -19,7 +19,6 @@ W1T2 t2(&test);
 W1T3 t3(&test);
 W1T4 t4(&test);
 
-
 void tmain(int argc, char* argv[])
 {
 	t1.run(std::cin, std::cout);	

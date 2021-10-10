@@ -97,5 +97,14 @@ void W1T2::test(Test* const reference)
 		reference->open(*this).input("(())\n").expect("CORRECT\n");
 		reference->open(*this).input("([)]\n").expect("2\n");
 		reference->open(*this).input("(([{\n").expect("4\n");
+
+		reference->open(*this).input("(())(()(\n").expect("8\n");
+		reference->open(*this).input("[(()[]]\n").expect("6\n");
+		reference->open(*this).input("{([(())]}\n").expect("8\n");
+		reference->open(*this).input(")[]{}\n").expect("0\n");
+		reference->open(*this).input("(])\n").expect("1\n");
+		reference->open(*this).input("{(]))\n").expect("2\n");
+		reference->open(*this).input("[](){}())\n").expect("8\n");
+		reference->open(*this).input("[(()){}](){}\n").expect("CORRECT\n");
 	}
 }
