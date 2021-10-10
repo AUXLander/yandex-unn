@@ -49,7 +49,7 @@ void W1T3::main(std::istream& input, std::ostream& output)
 
 	std::string outstring;
 
-	const int mid = size / 2;
+	const int mid = size / 2U;
 	const int limit_offset = (size / 2U) + 1;
 
 	const int lengthQ = next(istream);
