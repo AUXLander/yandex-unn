@@ -63,7 +63,7 @@ void W1T1::main(std::istream& input, std::ostream& output)
 		{
 			Element& node = nodes[nodes.size() - 1 - index];
 
-			if (node.value >= stack.top())
+			if (node.value > stack.top())
 			{
 				if (node.less.first + 1 > tmore.first)
 				{
@@ -72,7 +72,7 @@ void W1T1::main(std::istream& input, std::ostream& output)
 				}
 			}
 
-			if (node.value <= stack.top())
+			if (node.value < stack.top())
 			{
 				if (node.more.first + 1 > tless.first)
 				{
