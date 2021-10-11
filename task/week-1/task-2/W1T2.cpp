@@ -17,7 +17,12 @@ void W1T2::main(std::istream& input, std::ostream& output)
 
 		const symbol<char> snext(cnext);
 
-		const auto alphabet_item = ruleset.find(snext);
+		const auto codecheck = [&snext](const std::pair<symbol<char>, const rule>& cell)
+		{
+			return snext.code == cell.first.code;
+		};
+
+		const auto alphabet_item = std::find_if(ruleset.begin(), ruleset.end(), codecheck);
 
 		// check is rule exist for this symbol
 		if (alphabet_item != ruleset.end())
@@ -27,7 +32,12 @@ void W1T2::main(std::istream& input, std::ostream& output)
 			{
 				if (stack.empty() == false)
 				{
-					const auto closerule = closerules.find(stack.top());
+					const auto closecheck = [&stack](const std::pair<symbol<char>, symbol<char>>& cell)
+					{
+						return (stack.empty() == false) && (stack.top().code == cell.first.code);
+					};
+
+					const auto closerule = std::find_if(closerules.begin(), closerules.end(), closecheck);
 
 					// the close rule is exist
 					if (closerule != closerules.end())

@@ -1,5 +1,4 @@
 #pragma once
-#include <map>
 #include <functional>
 
 #include "../../../task.h"
@@ -34,14 +33,14 @@ class W1T2 : public Task
 		}
 	};
 
-	const std::map<symbol<char>, const rule, symbol<char>::less> ruleset =
+	const std::vector<std::pair<symbol<char>, const rule>> ruleset =
 	{
 		{ '(', rule::open }, { ')', rule::close },
 		{ '[', rule::open }, { ']', rule::close },
 		{ '{', rule::open }, { '}', rule::close },
 	};
 
-	const std::map<symbol<char>, symbol<char>, symbol<char>::less> closerules =
+	const std::vector<std::pair<symbol<char>, symbol<char>>> closerules =
 	{
 		{'(', ')'},
 		{'[', ']'},
@@ -54,6 +53,6 @@ class W1T2 : public Task
 public:	
 
 	W1T2() : Task(nullptr) {}
-	W1T2(Test* const reference) : Task(reference) {}
+	explicit W1T2(Test* const reference) : Task(reference) {}
 
 };
