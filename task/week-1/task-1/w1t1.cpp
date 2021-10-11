@@ -8,23 +8,40 @@
 #include "../../../test.h"
 #include "w1t1.h"
 
-struct Node
-{
-	int value;
-
-	std::pair<size_t, Node*> more;
-	std::pair<size_t, Node*> less;
-
-	Node(std::stack<int>& stack, std::pair<size_t, Node*>& more, std::pair<size_t, Node*>& less)
-		: value(stack.top()), more(more), less(less)
-	{}
-};
-
 void W1T1::main(std::istream& input, std::ostream& output)
 {
+	struct Element
+	{
+		int value;
+
+		std::pair<size_t, Element*> more;
+		std::pair<size_t, Element*> less;
+
+		Element(std::stack<int>& stack, std::pair<size_t, Element*>& more, std::pair<size_t, Element*>& less)
+			: value(stack.top()), more(more), less(less) {}
+	};
+
 	int length;
+	std::string result;
 	std::stack<int> stack;
-	std::deque<Node> nodes;
+	std::deque<Element> nodes;
+
+	std::pair<size_t, Element*> more(0, nullptr);
+	std::pair<size_t, Element*> less(0, nullptr);
+
+	bool dir = (more.first < less.first);
+
+	const auto select = [&dir] (const std::pair<size_t, Element*>& fdirmax, const std::pair<size_t, Element*>& tdirmax)
+	{
+		if (dir == false)
+		{
+			return fdirmax.second;
+		}
+		else
+		{
+			return tdirmax.second;
+		}
+	};
 
 	input >> length;
 
@@ -37,82 +54,66 @@ void W1T1::main(std::istream& input, std::ostream& output)
 		stack.push(value);
 	}
 
-	std::string outstring;
-
-	std::pair<size_t, Node*> max_more(0, nullptr);
-	std::pair<size_t, Node*> max_less(0, nullptr);
-
 	while (!stack.empty())
 	{
-		std::pair<size_t, Node*> loc_max_more(0, nullptr);
-		std::pair<size_t, Node*> loc_max_less(0, nullptr);
+		std::pair<size_t, Element*> tmore(0, nullptr);
+		std::pair<size_t, Element*> tless(0, nullptr);
 
 		for (size_t index = 0; index < nodes.size(); index++)
 		{
-			Node& node = nodes[nodes.size() - 1 - index];
+			Element& node = nodes[nodes.size() - 1 - index];
 
 			if (node.value >= stack.top())
 			{
-				if (node.less.first + 1 > loc_max_more.first)
+				if (node.less.first + 1 > tmore.first)
 				{
-					loc_max_more.first = node.less.first + 1;
-					loc_max_more.second = &node;
+					tmore.first = node.less.first + 1;
+					tmore.second = &node;
 				}
 			}
 
 			if (node.value <= stack.top())
 			{
-				if (node.more.first + 1 > loc_max_less.first)
+				if (node.more.first + 1 > tless.first)
 				{
-					loc_max_less.first = node.more.first + 1;
-					loc_max_less.second = &node;
+					tless.first = node.more.first + 1;
+					tless.second = &node;
 				}
 			}
 		}
 
-		Node& node = nodes.emplace_back(stack, loc_max_more, loc_max_less);
+		nodes.push_back({ stack, tmore, tless });
 
-		if (node.more.first >= max_more.first)
+		if (nodes.back().more.first >= more.first)
 		{
-			max_more.first = node.more.first;
-			max_more.second = &node;
+			more.first = nodes.back().more.first;
+			more.second = &nodes.back();
 		}
 
-		if (node.less.first >= max_less.first)
+		if (nodes.back().less.first >= less.first)
 		{
-			max_less.first = node.less.first;
-			max_less.second = &node;
+			less.first = nodes.back().less.first;
+			less.second = &nodes.back();
 		}
 
 		stack.pop();
 	}
 
-	bool direction = (max_more.first < max_less.first);
+	Element* pointer = select(more, less);
 
-	const auto select = [&direction](const std::pair<size_t, Node*>& fdirmax, const std::pair<size_t, Node*>& tdirmax)
+	while (pointer != nullptr)
 	{
-		if (direction == false)
-		{
-			return fdirmax.second;
-		}
-		else
-		{
-			return tdirmax.second;
-		}
-	};
+		result += ' ' + std::to_string(pointer->value);
 
-	Node* node = select(max_more, max_less);
+		pointer = select(pointer->more, pointer->less);
 
-	while (node != nullptr)
-	{
-		outstring += ' ' + std::to_string(node->value);
-
-		node = select(node->more, node->less);
-
-		direction = !direction;
+		dir = !dir;
 	}
 
-	output << outstring.erase(0, 1);
+	if (length > 0)
+	{
+		output << result.substr(1, -1);
+	}
 }
 
 void W1T1::test(Test* const reference)
