@@ -27,7 +27,7 @@ int main(int, char*[])
 	std::pair<size_t, Element*> more(0, nullptr);
 	std::pair<size_t, Element*> less(0, nullptr);
 
-	bool dir = (more.first < less.first);
+	bool dir;
 
 	const auto select = [&dir](const std::pair<size_t, Element*>& fdirmax, const std::pair<size_t, Element*>& tdirmax)
 	{
@@ -96,6 +96,8 @@ int main(int, char*[])
 
 		stack.pop();
 	}
+
+	dir = (more.first < less.first);
 
 	Element* pointer = select(more, less);
 

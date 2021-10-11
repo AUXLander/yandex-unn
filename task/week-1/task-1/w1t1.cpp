@@ -29,7 +29,7 @@ void W1T1::main(std::istream& input, std::ostream& output)
 	std::pair<size_t, Element*> more(0, nullptr);
 	std::pair<size_t, Element*> less(0, nullptr);
 
-	bool dir = (more.first < less.first);
+	bool dir;
 
 	const auto select = [&dir] (const std::pair<size_t, Element*>& fdirmax, const std::pair<size_t, Element*>& tdirmax)
 	{
@@ -99,6 +99,8 @@ void W1T1::main(std::istream& input, std::ostream& output)
 		stack.pop();
 	}
 
+	dir = (more.first < less.first);
+
 	Element* pointer = select(more, less);
 
 	while (pointer != nullptr)
@@ -120,6 +122,9 @@ void W1T1::test(Test* const reference)
 {
 	if (reference != nullptr)
 	{
+		reference->open(*this).input("5\n1 1 1 1 1\n").expect("1");
+		reference->open(*this).input("6\n1 2 1 1 2 1\n").expect("1 2 1 2 1");
+		reference->open(*this).input("6\n6 5 4 3 4 5\n").expect("6 4 5");
 		reference->open(*this).input("10\n1 4 2 3 5 8 6 7 9 10\n").expect("1 4 2 8 6 7");
 		reference->open(*this).input("5\n1 2 3 4 5\n").expect("1 2");
 		reference->open(*this).input("1\n100\n").expect("100");
