@@ -47,7 +47,7 @@ protected:
 	virtual void main(std::istream& input, std::ostream& output) = 0;
 
 public:
-	Task(Test* const reference) : m_index(0), m_reference(reference) {};
+	explicit Task(Test* const reference) : m_index(0), m_reference(reference) {};
 
 	Task(Task&&) = delete;
 	Task(const Task&) = delete;
