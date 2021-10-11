@@ -7,25 +7,13 @@
 #include "../../../test.h"
 #include "w1t1.h"
 
+struct Node;
+
+typedef std::pair<size_t, Node*> NodeCounter;
+
 struct Node
 {
 	int value;
-
-	struct NodeCounter
-	{
-		size_t count;
-		Node* pointer;
-
-		NodeCounter(const size_t count, Node* const pointer) : count(count), pointer(pointer) {}
-
-		NodeCounter& copy(const size_t Count, Node* const Pointer)
-		{
-			count = Count;
-			pointer = Pointer;
-
-			return *this;
-		}
-	};
 
 	NodeCounter more;
 	NodeCounter less;
@@ -38,75 +26,80 @@ struct Node
 
 void W1T1::main(std::istream& input, std::ostream& output)
 {
+	std::list<Node> nodes;
 	std::stack<int> stack;
-	std::istream_iterator<int, char> istream(input);
 
-	const int length = next(istream);
+	int length;
+	
+	input >> length;
 
-	if (length > 0)
+	for (int i = 0; i < length; ++i)
 	{
-		for (int i = 0; i < length; ++i)
-		{
-			stack.push(next(istream));
-		}
+		int value;
 
-		std::list<Node> nodes;
+		input >> value;
 
-		Node::NodeCounter max_more(0, nullptr);
-		Node::NodeCounter max_less(0, nullptr);
-
-		while (stack.empty() == false)
-		{
-			const auto top = stack.top();
-
-			Node::NodeCounter loc_max_more(0, nullptr);
-			Node::NodeCounter loc_max_less(0, nullptr);
-
-			for (auto it = nodes.rbegin(); it != nodes.rend(); ++it)
-			{
-				if ((it->value >= top) && (it->less.count + 1 > loc_max_more.count))
-				{
-					loc_max_more.copy(it->less.count + 1, &(*it));
-				}
-
-				if ((it->value <= top) && (it->more.count + 1 > loc_max_less.count))
-				{
-					loc_max_less.copy(it->more.count + 1, &(*it));
-				}
-			}
-
-			auto& node = nodes.emplace_back(top, loc_max_more.count, loc_max_more.pointer, loc_max_less.count, loc_max_less.pointer);
-
-			if (node.more.count >= max_more.count)
-			{
-				max_more.copy(node.more.count, &node);
-			}
-
-			if (node.less.count >= max_less.count)
-			{
-				max_less.copy(node.less.count, &node);
-			}
-
-			stack.pop();
-		}
-
-		std::string outstring;
-
-		bool direction = (max_more.count < max_less.count);
-
-		Node* node = !direction ? max_more.pointer : max_less.pointer;
-
-		while (node != nullptr)
-		{
-			outstring += ' ' + std::to_string(node->value);
-
-			node = direction ? node->less.pointer : node->more.pointer;
-
-			direction = !direction;
-		}
-
-		output << outstring.erase(0, 1);
+		stack.push(value);
 	}
+
+	std::string outstring;
+
+	NodeCounter max_more(0, nullptr);
+	NodeCounter max_less(0, nullptr);
+
+	while (stack.empty() == false)
+	{
+		const auto top = stack.top();
+
+		NodeCounter loc_max_more(0, nullptr);
+		NodeCounter loc_max_less(0, nullptr);
+
+		for (auto it = nodes.rbegin(); it != nodes.rend(); ++it)
+		{
+			if ((it->value >= top) && (it->less.first + 1 > loc_max_more.first))
+			{
+				loc_max_more.first = it->less.first + 1;
+				loc_max_more.second = &(*it);
+			}
+
+			if ((it->value <= top) && (it->more.first + 1 > loc_max_less.first))
+			{
+				loc_max_less.first = it->more.first + 1;
+				loc_max_less.second = &(*it);
+			}
+		}
+
+		auto& node = nodes.emplace_back(top, loc_max_more.first, loc_max_more.second, loc_max_less.first, loc_max_less.second);
+
+		if (node.more.first >= max_more.first)
+		{
+			max_more.first = node.more.first;
+			max_more.second = &node;
+		}
+
+		if (node.less.first >= max_less.first)
+		{
+			max_less.first = node.less.first;
+			max_less.second = &node;
+		}
+
+		stack.pop();
+	}
+
+	bool direction = (max_more.first < max_less.first);
+
+	Node* node = !direction ? max_more.second : max_less.second;
+
+	while (node != nullptr)
+	{
+		outstring += ' ' + std::to_string(node->value);
+
+		node = direction ? node->less.second : node->more.second;
+
+		direction = !direction;
+	}
+
+	output << outstring.erase(0, 1);
 }
 
 void W1T1::test(Test* const reference)
