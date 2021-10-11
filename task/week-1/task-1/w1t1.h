@@ -21,6 +21,6 @@ class W1T1: public Task
 public:
 
 	W1T1() : Task(nullptr) {}
-	W1T1(Test* const reference) : Task(reference) {}
+	explicit W1T1(Test* const reference) : Task(reference) {}
 
 };

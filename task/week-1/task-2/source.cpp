@@ -7,6 +7,8 @@
 #include <iterator>
 #include <iostream>
 #include <stack>
+#include <utility>
+#include <vector>
 #include <functional>
 
 class Test {};
@@ -82,7 +84,7 @@ class rW1T2 : public Task
     {
         const V code;
 
-        symbol(const V code) : code(code) {}
+        explicit symbol(const V& code) : code(code) {}
 
         struct less
         {
@@ -100,23 +102,22 @@ class rW1T2 : public Task
 
     const std::vector<std::pair<symbol<char>, const rule>> ruleset =
     {
-        { '(', rule::open }, { ')', rule::close },
-        { '[', rule::open }, { ']', rule::close },
-        { '{', rule::open }, { '}', rule::close },
+        { symbol<char>('('), rule::open }, { symbol<char>(')'), rule::close },
+        { symbol<char>('['), rule::open }, { symbol<char>(']'), rule::close },
+        { symbol<char>('{'), rule::open }, { symbol<char>('}'), rule::close },
     };
 
     const std::vector<std::pair<symbol<char>, symbol<char>>> closerules =
     {
-        {'(', ')'},
-        {'[', ']'},
-        {'{', '}'},
+        {symbol<char>('('), symbol<char>(')')},
+        {symbol<char>('['), symbol<char>(']')},
+        {symbol<char>('{'), symbol<char>('}')},
     };
 
     void test(Test* const reference) override final {};
     void main(std::istream& input, std::ostream& output) override final;
 
 public:
-
     rW1T2() : Task(nullptr) {}
     explicit rW1T2(Test* const reference) : Task(reference) {}
 };
@@ -150,12 +151,15 @@ void rW1T2::main(std::istream& input, std::ostream& output)
             {
                 if (stack.empty() == false)
                 {
-                    const auto closecheck = [&stack](const std::pair<symbol<char>, symbol<char>>& cell)
+                    const auto closecheck = [&stack] (const std::pair<symbol<char>, 
+                                                      const symbol<char>>& cell)
                     {
                         return (stack.empty() == false) && (stack.top().code == cell.first.code);
                     };
 
-                    const auto closerule = std::find_if(closerules.begin(), closerules.end(), closecheck);
+                    const auto closerule = std::find_if(closerules.begin(),
+                                                        closerules.end(),
+                                                        closecheck);
 
                     // the close rule is exist
                     if (closerule != closerules.end())
@@ -204,8 +208,6 @@ void rW1T2::main(std::istream& input, std::ostream& output)
 
             return;
         }
-
-        //cnext = next(istream);
     }
 
     if (stack.empty() == false)

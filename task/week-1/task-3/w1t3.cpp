@@ -1,5 +1,6 @@
 #include "w1t3.h"
 #include <deque>
+#include <algorithm>
 
 void W1T3::main(std::istream& input, std::ostream& output)
 {
@@ -10,29 +11,41 @@ void W1T3::main(std::istream& input, std::ostream& output)
 
 	const int lengthA = next(istream);
 	const int lengthB = next(istream);
-	const size_t size = next(istream);
+	const int size = next(istream);
 
-	for (size_t index = 0; index < lengthA; ++index)
+	matrixA.resize(lengthA);
+	matrixB.resize(lengthB);
+
+	for (int index = 0; index < lengthA; ++index)
 	{
-		auto& column = matrixA.emplace_back();
+		auto& column = matrixA[index];
 
-		for (size_t position = 0; position < size; ++position)
+		column.resize(size);
+
+		for (int position = 0; position < size; ++position)
 		{
-			column.push_back(next(istream));
+			column[position] = next(istream);
 		}
 	}
 
-	for (size_t index = 0; index < lengthB; ++index)
+	for (int index = 0; index < lengthB; ++index)
 	{
-		auto& column = matrixB.emplace_back();
+		auto& column = matrixB[index];
 
-		for (size_t position = 0; position < size; ++position)
+		column.resize(size);
+
+		for (int position = 0; position < size; ++position)
 		{
-			column.push_back(next(istream));
+			column[position] = next(istream);
 		}
 	}
 	
-	const auto element = [&matrixA, &matrixB](const int i, const int j, const int k) { return std::max(matrixA[i][k], matrixB[j][k]); };
+	const auto element = [&matrixA, &matrixB] (const int matrixIdxA,
+											   const int matrixIdxB,
+											   const int elementIdx) 
+	{
+		return std::max(matrixA[matrixIdxA][elementIdx], matrixB[matrixIdxB][elementIdx]);
+	};
 
 	struct MarkUp
 	{
@@ -54,14 +67,14 @@ void W1T3::main(std::istream& input, std::ostream& output)
 
 	const int lengthQ = next(istream);
 
-	for (size_t index = 0; index < lengthQ; ++index)
+	for (int index = 0; index < lengthQ; ++index)
 	{
-		const int i = next(istream) - 1U;
-		const int j = next(istream) - 1U;
+		const int matrixIdxA = next(istream) - 1U;
+		const int matrixIdxB = next(istream) - 1U;
 
-		int k = mid;
+		int elementIdx = mid;
 
-		minimum.absolute = element(i, j, k);
+		minimum.absolute = element(matrixIdxA, matrixIdxB, elementIdx);
 
 		minimum.left = minimum.absolute;
 		minimum.right = minimum.absolute;
@@ -71,14 +84,14 @@ void W1T3::main(std::istream& input, std::ostream& output)
 			for (int sign = -1; sign < 2; sign += 2)
 			{
 				const int position = clamp(0, mid - sign * offset, size - 1U);
-				const int locmin = element(i, j, position);
+				const int locmin = element(matrixIdxA, matrixIdxB, position);
 
 				index_access[1U + sign] = locmin;
 
 				if (locmin < minimum.absolute)
 				{
 					minimum.absolute = locmin;
-					k = position;
+					elementIdx = position;
 				}
 			}
 
@@ -89,7 +102,7 @@ void W1T3::main(std::istream& input, std::ostream& output)
 		}
 
 		outstring += '\n';
-		outstring += std::to_string(k + 1U);
+		outstring += std::to_string(elementIdx + 1U);
 	}
 
 	output << outstring.erase(0, 1);

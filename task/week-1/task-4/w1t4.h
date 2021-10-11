@@ -31,7 +31,7 @@ struct Span
 	struct RadiusDirection
 	{
 		using value_type = size_t;
-		enum Direction : value_type
+		enum class Direction : value_type
 		{
 			left = 0, right = 1
 		};

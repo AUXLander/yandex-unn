@@ -5,6 +5,9 @@
 #include <iterator>
 #include <limits>
 
+constexpr static double s_explicitInvalidSpanValue = std::numeric_limits<double>::max();
+constexpr static double s_maximumAvaibleRadius = 2000.0;
+
 int W1T4::countPointsRadius(const std::vector<PointT>& points, const double radius)
 {
 	auto lspanIterator = buffer.begin();
@@ -16,11 +19,11 @@ int W1T4::countPointsRadius(const std::vector<PointT>& points, const double radi
 
 		const bool isComplex = (xsqr < 0.0);
 
-		const auto loffset = isComplex ? std::numeric_limits<double>::max() : point.x - std::sqrt(xsqr);
-		const auto roffset = isComplex ? std::numeric_limits<double>::max() : point.x + std::sqrt(xsqr);
+		const auto loffset = isComplex ? s_explicitInvalidSpanValue : point.x - std::sqrt(xsqr);
+		const auto roffset = isComplex ? s_explicitInvalidSpanValue : point.x + std::sqrt(xsqr);
 
-		lspanIterator->set(loffset, SpanT::RadiusDirection::left);
-		rspanIterator->set(roffset, SpanT::RadiusDirection::right);
+		lspanIterator->set(loffset, SpanT::RadiusDirection::Direction::left);
+		rspanIterator->set(roffset, SpanT::RadiusDirection::Direction::right);
 
 		std::advance(lspanIterator, 1U);
 		std::advance(rspanIterator, 1U);
@@ -35,7 +38,7 @@ int W1T4::countPointsRadius(const std::vector<PointT>& points, const double radi
 
 	for (const auto& span : buffer)
 	{
-		if (span.xoffset > 2001.0)
+		if (span.xoffset > s_maximumAvaibleRadius)
 		{
 			break;
 		}
@@ -46,20 +49,6 @@ int W1T4::countPointsRadius(const std::vector<PointT>& points, const double radi
 	}
 
 	return max_accumulated;
-}
-
-void W1T4::test(Test* const reference)
-{
-	if (reference != nullptr)
-	{
-		reference->open(*this)
-			.input("3 3\n0 5\n3 4\n-4 -3\n")
-			.expect("5.000000", 5); // 5.000
-
-		reference->open(*this)
-			.input("3 2\n0 1\n2 1\n1 100\n")
-			.expect("1.414246", 5); // 1.414
-	}
 }
 
 void W1T4::main(std::istream& input, std::ostream& output)
@@ -87,7 +76,7 @@ void W1T4::main(std::istream& input, std::ostream& output)
 	initialize(points.size());
 
 	double start = 0.0;
-	double end = 1415.0;
+	double end = s_maximumAvaibleRadius;
 	double radius;
 
 	const auto check = [this, &points, &requested_count] (const double radius) -> bool
@@ -110,4 +99,19 @@ void W1T4::main(std::istream& input, std::ostream& output)
 	}
 
 	output << end << std::endl;
+}
+
+
+void W1T4::test(Test* const reference)
+{
+	if (reference != nullptr)
+	{
+		reference->open(*this)
+			.input("3 3\n0 5\n3 4\n-4 -3\n")
+			.expect("5.000000", 5); // 5.000
+
+		reference->open(*this)
+			.input("3 2\n0 1\n2 1\n1 100\n")
+			.expect("1.414246", 5); // 1.414
+	}
 }
