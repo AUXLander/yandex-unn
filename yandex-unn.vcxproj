@@ -147,6 +147,7 @@
     <ClCompile Include="source.cpp" />
     <ClCompile Include="task\week-1\task-1\source.cpp" />
     <ClCompile Include="task\week-1\task-1\w1t1.cpp" />
+    <ClCompile Include="task\week-1\task-2\source.cpp" />
     <ClCompile Include="task\week-1\task-2\W1T2.cpp" />
     <ClCompile Include="task\week-1\task-3\w1t3.cpp" />
     <ClCompile Include="task\week-1\task-4\w1t4.cpp" />

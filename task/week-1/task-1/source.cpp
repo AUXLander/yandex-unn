@@ -7,6 +7,8 @@
 #include <utility>
 #include <string>
 
+#ifdef RELEASE
+
 int main(int, char*[])
 {
     struct Element
@@ -121,3 +123,5 @@ int main(int, char*[])
 
     return 0;
 }
+
+#endif

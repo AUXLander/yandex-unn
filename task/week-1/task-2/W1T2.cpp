@@ -3,108 +3,102 @@
 
 #include "W1T2.h"
 
+static bool selectRule(const char ch)
+{
+	switch (ch)
+	{
+	case '(': return true;
+	case ')': return false;
+
+	case '{': return true;
+	case '}': return false;
+
+	case '[': return true;
+	case ']': return false;
+	}
+
+	return false;
+}
+
+static char selectCloseRule(const char ch)
+{
+	switch (ch)
+	{
+	case '(': return ')';
+	case '{': return '}';
+	case '[': return ']';
+	}
+	return '\0';
+}
+
+int parse(std::stack<char>& stack, size_t& index, const char cnext)
+{
+	const bool isRuleExist = (cnext == '(') || (cnext == '[') || (cnext == '{' || (cnext == '}') || (cnext == ']') || (cnext == ')'));
+
+	if (isRuleExist == false)
+	{
+		return index;
+	}
+
+	if (selectRule(cnext) == true) // rule::open
+	{
+		stack.push(cnext);
+		index++;
+
+		return -1;
+	}
+
+	if (stack.empty() == true)
+	{
+		return index;
+	}
+
+	if (selectCloseRule(stack.top()) != cnext)
+	{
+		return index;
+	}
+
+	stack.pop();
+	index++;
+
+	return -1;
+}
+
 void W1T2::main(std::istream& input, std::ostream& output)
 {
 	size_t index = 0;
-	std::stack<symbol<char>> stack;
+	std::stack<char> stack;
 
 	char cnext;
+	int status = -2;
 	bool initialized = false;
 
-	while ((input.peek() != '\n') && (input >> cnext))
+	while ((input.peek() != '\n') && (input >> cnext) && (status < 0))
 	{
-		initialized = true;
+		status = parse(stack, index, cnext);
+	}
 
-		const symbol<char> snext(cnext);
-
-		const auto codecheck = [&snext](const std::pair<symbol<char>, const rule>& cell)
+	if (status < 0)
+	{
+		if (stack.empty())
 		{
-			return snext.code == cell.first.code;
-		};
-
-		const auto alphabet_item = std::find_if(ruleset.begin(), ruleset.end(), codecheck);
-
-		// check is rule exist for this symbol
-		if (alphabet_item != ruleset.end())
-		{
-			// select rule: is that symbol opening or closing
-			if (alphabet_item->second == rule::close)
+			if (status == -1)
 			{
-				if (stack.empty() == false)
-				{
-					const auto closecheck = [&stack](const std::pair<symbol<char>, symbol<char>>& cell)
-					{
-						return (stack.empty() == false) && (stack.top().code == cell.first.code);
-					};
-
-					const auto closerule = std::find_if(closerules.begin(), closerules.end(), closecheck);
-
-					// the close rule is exist
-					if (closerule != closerules.end())
-					{
-						const symbol<char>& sclose = closerule->second;
-
-						if (sclose == snext)
-						{
-							stack.pop();
-							index++;
-						}
-						else
-						{
-							// ERROR: wrong closing symbol!
-							output << index << std::endl;
-
-							return;
-						}
-					}
-					else
-					{
-						// ERROR: closing error is not exist!
-						output << index << std::endl;
-
-						return;
-					}
-				}
-				else
-				{
-					// ERROR: closing not opened!
-					output << index << std::endl;
-
-					return;
-				}
+				output << "CORRECT" << '\n';
 			}
 			else
 			{
-				stack.push(snext);
-				index++;
+				output << 0 << '\n';
 			}
 		}
 		else
 		{
-			// ERROR: wrong symbol!
-			output << index << std::endl;
-
-			return;
+			output << index << '\n';
 		}
-
-		//cnext = next(istream);
-	}
-
-	if (stack.empty() == false)
-	{
-		// ERROR: sequence is not closed!
-		output << index << std::endl;
-
-		return;
-	}
-
-	if (initialized == true)
-	{
-		output << "CORRECT" << std::endl;
 	}
 	else
 	{
-		output << 0 << std::endl;
+		output << index << '\n';
 	}
 }
 
