@@ -7,15 +7,13 @@
 #include "../../../task.h"
 #include "../../../test.h"
 
-template<class T>
-struct Point
+struct Point : private std::pair<double, double>
 {
-	using value_type = T;
+	double& x = std::pair<double, double>::first;
+	double& y = std::pair<double, double>::second;
 
-	value_type x;
-	value_type y;
-
-	Point(const value_type x, const value_type y) : x(x), y(y) {}
+	Point() : std::pair<double, double>() {}
+	Point(const double x, const double y) : std::pair<double, double>(x, y) {}
 
 	inline bool operator<(const Point& other) const
 	{
@@ -23,75 +21,39 @@ struct Point
 	}
 };
 
-template<class T>
-struct Span
+using BoundType = bool;
+
+struct Bound : private std::pair<double, BoundType>
 {
-	using value_type = T;
+	double& xoffset = std::pair<double, BoundType>::first;
+	BoundType& type = std::pair<double, BoundType>::second;
 
-	struct RadiusDirection
-	{
-		using value_type = size_t;
-		enum Direction : value_type
-		{
-			left = 0, right = 1
-		};
+	Bound() : std::pair<double, BoundType>() {}
+	Bound(const double xoffset, const BoundType type) 
+		: std::pair<double, BoundType>(xoffset, type) {}
 
-		// The power of Direction set;
-		constexpr static size_t size { 2U };
+	Bound(Bound&& other) noexcept : std::pair<double, BoundType>(std::move(other)) {}
 
-	private:
-		Direction direction;
-	public:
-
-		RadiusDirection(const RadiusDirection::Direction direction) : direction(direction) {}
-
-		inline value_type transformation() const
-		{
-			return static_cast<value_type>(this->direction);
-		}
-	};
-
-public:
-	value_type xoffset;
-	RadiusDirection direction;
-
-	Span() : xoffset(std::numeric_limits<value_type>::max()), direction(RadiusDirection::Direction::left) {}
-	Span(const value_type xoffset, const RadiusDirection direction) : xoffset(xoffset), direction(direction) {}
-
-	inline bool operator<(const Span<T>& other) const
+	inline bool operator<(const Bound& other) const
 	{
 		return this->xoffset < other.xoffset;
 	}
 
-	inline void set(const value_type xoffset, const RadiusDirection direction)
+	inline Bound& operator=(const Bound& other)
 	{
-		this->xoffset = xoffset;
-		this->direction = direction;
+		xoffset = other.xoffset;
+		type = other.type;
+
+		return *this;
 	}
 };
 
 class W1T4 : public Task
 {
-	using SpanT = Span<double>;
-	using PointT = Point<double>;
-
-	static constexpr double precision = 1e-4;
-
-	std::vector<SpanT> buffer;
-
-	void initialize(const size_t size)
-	{
-		buffer.resize(size + size);
-	}
-
-	int countPointsRadius(const std::vector<PointT>& points, const double radius);
-
 	void test(Test* const reference) override final;
 	void main(std::istream& input, std::ostream& output) override final;
 
 public:
-
 	W1T4() : Task(nullptr) {}
-	W1T4(Test* const reference) : Task(reference) {}
-
+	explicit  W1T4(Test* const reference) : Task(reference) {}
 };
