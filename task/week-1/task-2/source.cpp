@@ -1,9 +1,10 @@
-#define DEBUG_rW1T2
+//#define DEBUG_rW1T2
 
 #ifndef DEBUG_rW1T2
 #define RELEASE
 #endif
 
+#include <iterator>
 #include <iostream>
 #include <stack>
 #include <map>
@@ -126,12 +127,13 @@ void rW1T2::main(std::istream& input, std::ostream& output)
 {
 	size_t index = 0;
 	std::stack<symbol<char>> stack;
-	std::istream_iterator<char, char> istream(input);
 
-	char cnext = next<char>(istream);
+	char cnext;
+	bool initialized = false;
 
-	while ((cnext != '\n') && (cnext != '\0'))
+	while ((input.peek() != '\n') && (input >> cnext))
 	{
+		initialized = true;
 		const symbol<char> snext(cnext);
 
 		const auto alphabet_item = ruleset.find(snext);
@@ -193,8 +195,6 @@ void rW1T2::main(std::istream& input, std::ostream& output)
 
 			return;
 		}
-
-		cnext = next(istream);
 	}
 
 	if (stack.empty() == false)
@@ -205,7 +205,14 @@ void rW1T2::main(std::istream& input, std::ostream& output)
 		return;
 	}
 
-	output << "CORRECT" << std::endl;
+	if (initialized == true)
+	{
+		output << "CORRECT" << std::endl;
+	}
+	else
+	{
+		output << 0 << std::endl;
+	}
 }
 
 #ifndef DEBUG_rW1T2

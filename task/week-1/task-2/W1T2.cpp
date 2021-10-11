@@ -7,12 +7,14 @@ void W1T2::main(std::istream& input, std::ostream& output)
 {
 	size_t index = 0;
 	std::stack<symbol<char>> stack;
-	std::istream_iterator<char, char> istream(input);
 
-	char cnext = next<char>(istream);
+	char cnext;
+	bool initialized = false;
 
-	while ((cnext != '\n') && (cnext != '\0'))
+	while ((input.peek() != '\n') && (input >> cnext))
 	{
+		initialized = true;
+
 		const symbol<char> snext(cnext);
 
 		const auto alphabet_item = ruleset.find(snext);
@@ -75,7 +77,7 @@ void W1T2::main(std::istream& input, std::ostream& output)
 			return;
 		}
 
-		cnext = next(istream);
+		//cnext = next(istream);
 	}
 
 	if (stack.empty() == false)
@@ -86,7 +88,14 @@ void W1T2::main(std::istream& input, std::ostream& output)
 		return;
 	}
 
-	output << "CORRECT" << std::endl;
+	if (initialized == true)
+	{
+		output << "CORRECT" << std::endl;
+	}
+	else
+	{
+		output << 0 << std::endl;
+	}
 }
 
 void W1T2::test(Test* const reference)
@@ -96,6 +105,7 @@ void W1T2::test(Test* const reference)
 		reference->open(*this).input("(())\n").expect("CORRECT\n");
 		reference->open(*this).input("([)]\n").expect("2\n");
 		reference->open(*this).input("(([{\n").expect("4\n");
+		reference->open(*this).input("\n").expect("0\n");
 
 		reference->open(*this).input("(())(()(\n").expect("8\n");
 		reference->open(*this).input("[(()[]]\n").expect("6\n");

@@ -1,4 +1,4 @@
-// #define DEBUG_rW1T1
+#define DEBUG_rW1T1
 
 #ifndef DEBUG_rW1T1
 #define RELEASE
