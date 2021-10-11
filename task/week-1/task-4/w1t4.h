@@ -23,37 +23,36 @@ struct Point
 	}
 };
 
+struct RadiusDirection
+{
+	using value_type = size_t;
+	enum class Direction : value_type
+	{
+		left = 0, right = 1
+	};
+
+	// The power of Direction set;
+	constexpr static size_t size{ 2U };
+
+private:
+	Direction direction;
+public:
+	explicit RadiusDirection(const RadiusDirection::Direction direction) : direction(direction) {}
+
+	static inline value_type transformation(const Direction direction)
+	{
+		return static_cast<value_type>(direction);
+	}
+};
+
 template<class T>
 struct Span
 {
 	using value_type = T;
 
-	struct RadiusDirection
-	{
-		using value_type = size_t;
-		enum class Direction : value_type
-		{
-			left = 0, right = 1
-		};
-
-		// The power of Direction set;
-		constexpr static size_t size { 2U };
-
-	private:
-		Direction direction;
-	public:
-
-		RadiusDirection(const RadiusDirection::Direction direction) : direction(direction) {}
-
-		inline value_type transformation() const
-		{
-			return static_cast<value_type>(this->direction);
-		}
-	};
-
 public:
 	value_type xoffset;
-	RadiusDirection direction;
+	RadiusDirection::Direction direction;
 
 	Span() : xoffset(std::numeric_limits<value_type>::max()), direction(RadiusDirection::Direction::left) {}
 	Span(const value_type xoffset, const RadiusDirection direction) : xoffset(xoffset), direction(direction) {}
@@ -63,7 +62,7 @@ public:
 		return this->xoffset < other.xoffset;
 	}
 
-	inline void set(const value_type xoffset, const RadiusDirection direction)
+	inline void set(const value_type xoffset, const RadiusDirection::Direction direction)
 	{
 		this->xoffset = xoffset;
 		this->direction = direction;
@@ -90,8 +89,6 @@ class W1T4 : public Task
 	void main(std::istream& input, std::ostream& output) override final;
 
 public:
-
 	W1T4() : Task(nullptr) {}
-	W1T4(Test* const reference) : Task(reference) {}
-
+	explicit  W1T4(Test* const reference) : Task(reference) {}
 };

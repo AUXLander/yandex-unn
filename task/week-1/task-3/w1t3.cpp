@@ -60,8 +60,6 @@ void W1T3::main(std::istream& input, std::ostream& output)
 		int	   index_access[3];
 	};
 
-	std::string outstring;
-
 	const int mid = size / 2U;
 	const int limit_offset = (size / 2U) + 1;
 
@@ -69,6 +67,11 @@ void W1T3::main(std::istream& input, std::ostream& output)
 
 	for (int index = 0; index < lengthQ; ++index)
 	{
+		if (index > 0)
+		{
+			output << '\n';
+		}
+
 		const int matrixIdxA = next(istream) - 1U;
 		const int matrixIdxB = next(istream) - 1U;
 
@@ -95,17 +98,15 @@ void W1T3::main(std::istream& input, std::ostream& output)
 				}
 			}
 
-			if ((minimum.left > minimum.absolute) && (minimum.absolute < minimum.right))
+			if ((minimum.left > minimum.absolute) 
+				 && (minimum.absolute < minimum.right))
 			{
 				break;
 			}
 		}
 
-		outstring += '\n';
-		outstring += std::to_string(elementIdx + 1U);
+		output << elementIdx + 1U;
 	}
-
-	output << outstring.erase(0, 1);
 }
 
 void W1T3::test(Test* const reference)

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <limits>
+#include <cmath>
 
 constexpr static double s_explicitInvalidSpanValue = std::numeric_limits<double>::max();
 constexpr static double s_maximumAvaibleRadius = 2000.0;
@@ -22,8 +23,8 @@ int W1T4::countPointsRadius(const std::vector<PointT>& points, const double radi
 		const auto loffset = isComplex ? s_explicitInvalidSpanValue : point.x - std::sqrt(xsqr);
 		const auto roffset = isComplex ? s_explicitInvalidSpanValue : point.x + std::sqrt(xsqr);
 
-		lspanIterator->set(loffset, SpanT::RadiusDirection::Direction::left);
-		rspanIterator->set(roffset, SpanT::RadiusDirection::Direction::right);
+		lspanIterator->set(loffset, RadiusDirection::Direction::left);
+		rspanIterator->set(roffset, RadiusDirection::Direction::right);
 
 		std::advance(lspanIterator, 1U);
 		std::advance(rspanIterator, 1U);
@@ -31,7 +32,7 @@ int W1T4::countPointsRadius(const std::vector<PointT>& points, const double radi
 
 	std::sort(buffer.begin(), buffer.end());
 
-	constexpr static long int accumulation[SpanT::RadiusDirection::size] = { +1, -1 };
+	constexpr static long int accumulation[RadiusDirection::size] = { +1, -1 };
 
 	int max_accumulated = 0;
 	int accumulated = 0;
@@ -42,8 +43,8 @@ int W1T4::countPointsRadius(const std::vector<PointT>& points, const double radi
 		{
 			break;
 		}
-
-		accumulated += accumulation[span.direction.transformation()];
+		
+		accumulated += accumulation[RadiusDirection::transformation(span.direction)];
 
 		max_accumulated = std::max(max_accumulated, accumulated);
 	}
@@ -65,7 +66,7 @@ void W1T4::main(std::istream& input, std::ostream& output)
 
 	points.reserve(size);
 
-	for (int index = 0; index < size; index++)
+	for (int index = 0; index < size; ++index)
 	{
 		const auto x = next(istream);
 		const auto y = next(istream);
