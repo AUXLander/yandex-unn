@@ -15,18 +15,17 @@ struct Node
 	std::pair<size_t, Node*> more;
 	std::pair<size_t, Node*> less;
 
-	Node(int v, size_t cm, Node * const pmore, size_t cl, Node* const pless)
-		: value(v), more(cm, pmore), less(cl, pless)
+	Node(std::stack<int>& stack, std::pair<size_t, Node*>& more, std::pair<size_t, Node*>& less)
+		: value(stack.top()), more(more), less(less)
 	{}
 };
 
 void W1T1::main(std::istream& input, std::ostream& output)
 {
-	std::deque<Node> nodes;
-	std::stack<int> stack;
-
 	int length;
-	
+	std::stack<int> stack;
+	std::deque<Node> nodes;
+
 	input >> length;
 
 	for (int i = 0; i < length; ++i)
@@ -45,8 +44,6 @@ void W1T1::main(std::istream& input, std::ostream& output)
 
 	while (!stack.empty())
 	{
-		const auto top = stack.top();
-
 		std::pair<size_t, Node*> loc_max_more(0, nullptr);
 		std::pair<size_t, Node*> loc_max_less(0, nullptr);
 
@@ -54,7 +51,7 @@ void W1T1::main(std::istream& input, std::ostream& output)
 		{
 			Node& node = nodes[nodes.size() - 1 - index];
 
-			if (node.value >= top)
+			if (node.value >= stack.top())
 			{
 				if (node.less.first + 1 > loc_max_more.first)
 				{
@@ -63,7 +60,7 @@ void W1T1::main(std::istream& input, std::ostream& output)
 				}
 			}
 
-			if (node.value <= top)
+			if (node.value <= stack.top())
 			{
 				if (node.more.first + 1 > loc_max_less.first)
 				{
@@ -73,7 +70,7 @@ void W1T1::main(std::istream& input, std::ostream& output)
 			}
 		}
 
-		auto& node = nodes.emplace_back(top, loc_max_more.first, loc_max_more.second, loc_max_less.first, loc_max_less.second);
+		Node& node = nodes.emplace_back(stack, loc_max_more, loc_max_less);
 
 		if (node.more.first >= max_more.first)
 		{
@@ -92,13 +89,25 @@ void W1T1::main(std::istream& input, std::ostream& output)
 
 	bool direction = (max_more.first < max_less.first);
 
-	Node* node = !direction ? max_more.second : max_less.second;
+	const auto select = [&direction](const std::pair<size_t, Node*>& fdirmax, const std::pair<size_t, Node*>& tdirmax)
+	{
+		if (direction == false)
+		{
+			return fdirmax.second;
+		}
+		else
+		{
+			return tdirmax.second;
+		}
+	};
+
+	Node* node = select(max_more, max_less);
 
 	while (node != nullptr)
 	{
 		outstring += ' ' + std::to_string(node->value);
 
-		node = direction ? node->less.second : node->more.second;
+		node = select(node->more, node->less);
 
 		direction = !direction;
 	}
