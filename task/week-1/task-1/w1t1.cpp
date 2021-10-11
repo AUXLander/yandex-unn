@@ -3,30 +3,26 @@
 #include <array>
 #include <stack>
 #include <cmath>
+#include <deque>
 
 #include "../../../test.h"
 #include "w1t1.h"
-
-struct Node;
-
-typedef std::pair<size_t, Node*> NodeCounter;
 
 struct Node
 {
 	int value;
 
-	NodeCounter more;
-	NodeCounter less;
+	std::pair<size_t, Node*> more;
+	std::pair<size_t, Node*> less;
 
 	Node(int v, size_t cm, Node * const pmore, size_t cl, Node* const pless)
 		: value(v), more(cm, pmore), less(cl, pless)
-	{
-	}
+	{}
 };
 
 void W1T1::main(std::istream& input, std::ostream& output)
 {
-	std::list<Node> nodes;
+	std::deque<Node> nodes;
 	std::stack<int> stack;
 
 	int length;
@@ -44,28 +40,36 @@ void W1T1::main(std::istream& input, std::ostream& output)
 
 	std::string outstring;
 
-	NodeCounter max_more(0, nullptr);
-	NodeCounter max_less(0, nullptr);
+	std::pair<size_t, Node*> max_more(0, nullptr);
+	std::pair<size_t, Node*> max_less(0, nullptr);
 
-	while (stack.empty() == false)
+	while (!stack.empty())
 	{
 		const auto top = stack.top();
 
-		NodeCounter loc_max_more(0, nullptr);
-		NodeCounter loc_max_less(0, nullptr);
+		std::pair<size_t, Node*> loc_max_more(0, nullptr);
+		std::pair<size_t, Node*> loc_max_less(0, nullptr);
 
-		for (auto it = nodes.rbegin(); it != nodes.rend(); ++it)
+		for (size_t index = 0; index < nodes.size(); index++)
 		{
-			if ((it->value >= top) && (it->less.first + 1 > loc_max_more.first))
+			Node& node = nodes[nodes.size() - 1 - index];
+
+			if (node.value >= top)
 			{
-				loc_max_more.first = it->less.first + 1;
-				loc_max_more.second = &(*it);
+				if (node.less.first + 1 > loc_max_more.first)
+				{
+					loc_max_more.first = node.less.first + 1;
+					loc_max_more.second = &node;
+				}
 			}
 
-			if ((it->value <= top) && (it->more.first + 1 > loc_max_less.first))
+			if (node.value <= top)
 			{
-				loc_max_less.first = it->more.first + 1;
-				loc_max_less.second = &(*it);
+				if (node.more.first + 1 > loc_max_less.first)
+				{
+					loc_max_less.first = node.more.first + 1;
+					loc_max_less.second = &node;
+				}
 			}
 		}
 
