@@ -3,20 +3,26 @@
 
 #include "W1T2.h"
 
-
 void W1T2::main(std::istream& input, std::ostream& output)
 {
 	size_t index = 0;
 	std::stack<symbol<char>> stack;
-	std::istream_iterator<char, char> istream(input);
 
-	char cnext = next<char>(istream);
+	char cnext;
+	bool initialized = false;
 
-	while ((cnext != '\n') && (cnext != '\0'))
+	while ((input.peek() != '\n') && (input >> cnext))
 	{
+		initialized = true;
+
 		const symbol<char> snext(cnext);
 
-		const auto alphabet_item = ruleset.find(snext);
+		const auto codecheck = [&snext](const std::pair<symbol<char>, const rule>& cell)
+		{
+			return snext.code == cell.first.code;
+		};
+
+		const auto alphabet_item = std::find_if(ruleset.begin(), ruleset.end(), codecheck);
 
 		// check is rule exist for this symbol
 		if (alphabet_item != ruleset.end())
@@ -26,7 +32,12 @@ void W1T2::main(std::istream& input, std::ostream& output)
 			{
 				if (stack.empty() == false)
 				{
-					const auto closerule = closerules.find(stack.top());
+					const auto closecheck = [&stack](const std::pair<symbol<char>, symbol<char>>& cell)
+					{
+						return (stack.empty() == false) && (stack.top().code == cell.first.code);
+					};
+
+					const auto closerule = std::find_if(closerules.begin(), closerules.end(), closecheck);
 
 					// the close rule is exist
 					if (closerule != closerules.end())
@@ -76,7 +87,7 @@ void W1T2::main(std::istream& input, std::ostream& output)
 			return;
 		}
 
-		cnext = next(istream);
+		//cnext = next(istream);
 	}
 
 	if (stack.empty() == false)
@@ -87,7 +98,14 @@ void W1T2::main(std::istream& input, std::ostream& output)
 		return;
 	}
 
-	output << "CORRECT" << std::endl;
+	if (initialized == true)
+	{
+		output << "CORRECT" << std::endl;
+	}
+	else
+	{
+		output << 0 << std::endl;
+	}
 }
 
 void W1T2::test(Test* const reference)
@@ -97,6 +115,7 @@ void W1T2::test(Test* const reference)
 		reference->open(*this).input("(())\n").expect("CORRECT\n");
 		reference->open(*this).input("([)]\n").expect("2\n");
 		reference->open(*this).input("(([{\n").expect("4\n");
+		reference->open(*this).input("\n").expect("0\n");
 
 		reference->open(*this).input("(())(()(\n").expect("8\n");
 		reference->open(*this).input("[(()[]]\n").expect("6\n");
