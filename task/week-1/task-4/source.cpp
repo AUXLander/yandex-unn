@@ -52,6 +52,11 @@ protected:
 public:
 	Task(Test* const reference) : m_index(0), m_reference(reference) {};
 
+	Task(Task&&) = delete;
+	Task(const Task&) = delete;
+
+	virtual ~Task() {};
+
 	void selftest()
 	{
 		if (m_reference != nullptr)
