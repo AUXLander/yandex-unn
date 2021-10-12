@@ -44,9 +44,12 @@ void W1T3::main(std::istream& input, std::ostream& output)
 	
 	const auto pick = [&matrixA, &matrixB] (const int matrixIdxA,
 											const int matrixIdxB,
-											const int elementIdx) 
+											const int elementIdx,
+											bool& side) 
 	{
-		return std::max(matrixA[matrixIdxA][elementIdx], matrixB[matrixIdxB][elementIdx]);
+		side = matrixA[matrixIdxA][elementIdx] > matrixB[matrixIdxB][elementIdx];
+
+		return side ? matrixA[matrixIdxA][elementIdx] : matrixB[matrixIdxB][elementIdx];
 	};
 
 	struct MarkUp
@@ -76,81 +79,36 @@ void W1T3::main(std::istream& input, std::ostream& output)
 		const int matrixIdxA = next(istream) - 1U;
 		const int matrixIdxB = next(istream) - 1U;
 
-		int min = pick(matrixIdxA, matrixIdxB, 0);
+		bool side = true;
+
 		int left = 0;
 		int right = size - 1;
 
-		std::stack<std::pair<int, int>> stack;
-
 		while (std::abs(right - left) > 1U)
 		{
-			stack.emplace(left, right);
+			int middle = (left + right) / 2U;
 
-			while (stack.empty() == false)
+			int value = pick(matrixIdxA, matrixIdxB, middle, side);
+
+			if (side == false)
 			{
-				int lstack = stack.top().first;
-				int rstack = stack.top().second;
-
-				stack.pop();
-
-				int middle = (lstack + rstack) / 2U;
-
-				int lquad = (lstack + middle) / 2U;
-				int rquad = (rstack + middle) / 2U;
-
-				const int xxx = pick(matrixIdxA, matrixIdxB, middle);
-
-				const int lqx = pick(matrixIdxA, matrixIdxB, lquad);
-				const int rqx = pick(matrixIdxA, matrixIdxB, rquad);
-
-				if (lqx <= xxx)
-				{
-					if (lqx < xxx)
-					{
-						right = middle;
-					}
-					else
-					{
-						stack.emplace(lstack, middle);
-						continue;
-					}
-				}
-				else if (xxx >= rqx)
-				{
-					if (xxx > rqx)
-					{
-						left = middle;
-					}
-					else
-					{
-						stack.emplace(middle, rstack);
-						continue;
-					}
-				}
-				else
-				{
-					stack.emplace(lstack, middle);
-					stack.emplace(middle, rstack);
-
-					continue;
-				}
-
-				if (stack.empty() == false)
-				{
-					stack.pop();
-				}
+				left = middle;
+			}
+			else
+			{
+				right = middle;
 			}
 		}
 		
-		const int zleft = pick(matrixIdxA, matrixIdxB, left);
-		const int zright = pick(matrixIdxA, matrixIdxB, right);
+		const int zleft = pick(matrixIdxA, matrixIdxB, left, side);
+		const int zright = pick(matrixIdxA, matrixIdxB, right, side);
 
-		int zmin = pick(matrixIdxA, matrixIdxB, 0);
+		int zmin = pick(matrixIdxA, matrixIdxB, 0, side);
 		std::string imin = "0";
 
 		for (int i = 1; i < size; ++i)
 		{
-			const int z = pick(matrixIdxA, matrixIdxB, i);
+			const int z = pick(matrixIdxA, matrixIdxB, i, side);
 
 			if (z == zmin)
 			{
