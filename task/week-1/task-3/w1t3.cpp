@@ -1,85 +1,57 @@
 #include "w1t3.h"
-#include <deque>
+#include <vector>
 #include <string>
 #include <stack>
 #include <algorithm>
 
 void W1T3::main(std::istream& input, std::ostream& output)
 {
-	std::deque<std::deque<int>> matrixA;
-	std::deque<std::deque<int>> matrixB;
+	int lengthA;
+	int lengthB;
+	int size;
+	int lengthQ;
+	int matrixIdxA;
+	int matrixIdxB;
 
-	std::istream_iterator<int, char> istream(input);
+	input >> lengthA;
+	input >> lengthB;
+	input >> size;
 
-	const int lengthA = next(istream);
-	const int lengthB = next(istream);
-	const int size = next(istream);
+	int* pGlobalMatrix = new int[size * (lengthA + lengthB)];
 
-	matrixA.resize(lengthA);
-	matrixB.resize(lengthB);
+	int* matrixA = pGlobalMatrix + 0U;
+	int* matrixB = pGlobalMatrix + size * lengthA;
 
 	for (int index = 0; index < lengthA; ++index)
 	{
-		auto& column = matrixA[index];
-
-		column.resize(size);
-
 		for (int position = 0; position < size; ++position)
 		{
-			column[position] = next(istream);
+			input >> matrixA[size * index + position];
 		}
 	}
 
 	for (int index = 0; index < lengthB; ++index)
 	{
-		auto& column = matrixB[index];
-
-		column.resize(size);
-
 		for (int position = 0; position < size; ++position)
 		{
-			column[position] = next(istream);
+			input >> matrixB[size * index + position];
 		}
 	}
 
-	const auto pick = [&matrixA, &matrixB](const int matrixIdxA,
-		const int matrixIdxB,
-		const int elementIdx,
-		bool& side)
-	{
-		side = matrixA[matrixIdxA][elementIdx] > matrixB[matrixIdxB][elementIdx];
-
-		return side ? matrixA[matrixIdxA][elementIdx] : matrixB[matrixIdxB][elementIdx];
-	};
-
-	struct MarkUp
-	{
-		int left;
-		int absolute;
-		int right;
-	};
-
-	union
-	{
-		MarkUp minimum;
-		int	   index_access[3];
-	};
-
-	const int lengthQ = next(istream);
-
-	std::string result;
+	input >> lengthQ;
 
 	for (int index = 0; index < lengthQ; ++index)
 	{
 		if (index > 0)
 		{
-			result += '\n';
+			output << '\n';
 		}
 
-		const int matrixIdxA = next(istream) - 1U;
-		const int matrixIdxB = next(istream) - 1U;
+		input >> matrixIdxA;
+		input >> matrixIdxB;
 
-		bool side = true;
+		--matrixIdxA;
+		--matrixIdxB;
 
 		int left = 0;
 		int right = size - 1;
@@ -88,9 +60,7 @@ void W1T3::main(std::istream& input, std::ostream& output)
 		{
 			int middle = (left + right) / 2U;
 
-			int value = pick(matrixIdxA, matrixIdxB, middle, side);
-
-			if (side == false)
+			if (matrixA[matrixIdxA * size + middle] <= matrixB[matrixIdxB * size + middle])
 			{
 				left = middle;
 			}
@@ -100,15 +70,17 @@ void W1T3::main(std::istream& input, std::ostream& output)
 			}
 		}
 
-		const int zleft = pick(matrixIdxA, matrixIdxB, left, side);
-		const int zright = pick(matrixIdxA, matrixIdxB, right, side);
+		const auto select = [&matrixA, &matrixIdxA, &matrixB, &matrixIdxB, &size](const int offset)
+		{
+			return std::max(matrixA[matrixIdxA * size + offset], matrixB[matrixIdxB * size + offset]);
+		};
 
-		int zmin = pick(matrixIdxA, matrixIdxB, 0, side);
+		int zmin = select(0);
 		std::string imin = "0";
 
 		for (int i = 1; i < size; ++i)
 		{
-			const int z = pick(matrixIdxA, matrixIdxB, i, side);
+			const int z = select(i);
 
 			if (z == zmin)
 			{
@@ -122,14 +94,14 @@ void W1T3::main(std::istream& input, std::ostream& output)
 			}
 		}
 
-		if (zleft < zright)
+		if (select(left) < select(right))
 		{
 			if (imin.find(std::to_string(left)) == imin.npos)
 			{
 				left = left;
 			}
 
-			result += std::to_string(left + 1U);
+			output << left + 1U;
 		}
 		else
 		{
@@ -138,11 +110,11 @@ void W1T3::main(std::istream& input, std::ostream& output)
 				right = right;
 			}
 
-			result += std::to_string(right + 1U);
+			output << right + 1U;
 		}
 	}
 
-	output << result;
+	delete[] pGlobalMatrix;
 }
 
 void W1T3::test(Test* const reference)
