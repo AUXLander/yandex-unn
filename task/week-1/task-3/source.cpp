@@ -1,4 +1,4 @@
-// #define DEBUG_rW1T3
+#define DEBUG_rW1T3
 
 #ifndef DEBUG_rW1T3
 #define RELEASE
@@ -75,11 +75,6 @@ public:
 
 class rW1T3 : public Task
 {
-    int clamp(const int min, const int value, const int max) 
-    { 
-        return std::min<int>(max, std::max(min, value));
-    };
-
     void test(Test* const reference) override final {}
     void main(std::istream& input, std::ostream& output) override final;
 
@@ -87,7 +82,6 @@ public:
     rW1T3() : Task(nullptr) {}
     explicit rW1T3(Test* const reference) : Task(reference) {}
 };
-
 void rW1T3::main(std::istream& input, std::ostream& output)
 {
 	std::deque<std::deque<int>> matrixA;
@@ -126,7 +120,7 @@ void rW1T3::main(std::istream& input, std::ostream& output)
 		}
 	}
 
-	const auto element = [&matrixA, &matrixB](const int matrixIdxA,
+	const auto pick = [&matrixA, &matrixB](const int matrixIdxA,
 		const int matrixIdxB,
 		const int elementIdx)
 	{
@@ -146,53 +140,64 @@ void rW1T3::main(std::istream& input, std::ostream& output)
 		int	   index_access[3];
 	};
 
-	const int mid = size / 2U;
-	const int limit_offset = (size / 2U) + 1;
-
 	const int lengthQ = next(istream);
+
+	std::string result;
 
 	for (int index = 0; index < lengthQ; ++index)
 	{
 		if (index > 0)
 		{
-			output << '\n';
+			result += '\n';
 		}
 
 		const int matrixIdxA = next(istream) - 1U;
 		const int matrixIdxB = next(istream) - 1U;
 
-		int elementIdx = mid;
+		int left = 0;
+		int right = size - 1;
 
-		minimum.absolute = element(matrixIdxA, matrixIdxB, elementIdx);
-
-		minimum.left = minimum.absolute;
-		minimum.right = minimum.absolute;
-
-		for (int offset = 1; offset < limit_offset; ++offset)
+		while (std::abs(right - left) > 1U)
 		{
-			for (int sign = -1; sign < 2; sign += 2)
+			const int middle = (left + right) / 2U;
+
+			const int lquad = (left + middle) / 2U;
+			const int rquad = (right + middle) / 2U;
+
+			const int xx = pick(matrixIdxA, matrixIdxB, middle);
+
+			const int lx = pick(matrixIdxA, matrixIdxB, lquad);
+			const int rx = pick(matrixIdxA, matrixIdxB, rquad);
+
+			if (lx < xx)
 			{
-				const int position = clamp(0, mid - sign * offset, size - 1U);
-				const int locmin = element(matrixIdxA, matrixIdxB, position);
-
-				index_access[1U + sign] = locmin;
-
-				if (locmin < minimum.absolute)
-				{
-					minimum.absolute = locmin;
-					elementIdx = position;
-				}
+				right = middle;
 			}
-
-			if ((minimum.left > minimum.absolute)
-				&& (minimum.absolute < minimum.right))
+			else if (rx < xx)
 			{
-				break;
+				left = middle;
+			}
+			else
+			{
+				left = lquad;
+				right = rquad;
 			}
 		}
 
-		output << elementIdx + 1U;
+		const int zleft = pick(matrixIdxA, matrixIdxB, left);
+		const int zright = pick(matrixIdxA, matrixIdxB, right);
+
+		if (zleft < zright)
+		{
+			result += std::to_string(left + 1U);
+		}
+		else
+		{
+			result += std::to_string(right + 1U);
+		}
 	}
+
+	output << result;
 }
 
 #ifndef DEBUG_rW1T3
