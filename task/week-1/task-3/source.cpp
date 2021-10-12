@@ -1,4 +1,4 @@
-#define DEBUG_rW1T3
+// #define DEBUG_rW1T3
 
 #ifndef DEBUG_rW1T3
 #define RELEASE
@@ -82,128 +82,122 @@ public:
     rW1T3() : Task(nullptr) {}
     explicit rW1T3(Test* const reference) : Task(reference) {}
 };
+
 void rW1T3::main(std::istream& input, std::ostream& output)
 {
-	std::deque<std::deque<int>> matrixA;
-	std::deque<std::deque<int>> matrixB;
+    std::deque<std::deque<int>> matrixA;
+    std::deque<std::deque<int>> matrixB;
 
-	std::istream_iterator<int, char> istream(input);
+    std::istream_iterator<int, char> istream(input);
 
-	const int lengthA = next(istream);
-	const int lengthB = next(istream);
-	const int size = next(istream);
+    const int lengthA = next(istream);
+    const int lengthB = next(istream);
+    const int size = next(istream);
 
-	matrixA.resize(lengthA);
-	matrixB.resize(lengthB);
+    matrixA.resize(lengthA);
+    matrixB.resize(lengthB);
 
-	for (int index = 0; index < lengthA; ++index)
-	{
-		auto& column = matrixA[index];
+    for (int index = 0; index < lengthA; ++index)
+    {
+        auto& column = matrixA[index];
 
-		column.resize(size);
+        column.resize(size);
 
-		for (int position = 0; position < size; ++position)
-		{
-			column[position] = next(istream);
-		}
-	}
+        for (int position = 0; position < size; ++position)
+        {
+            column[position] = next(istream);
+        }
+    }
 
-	for (int index = 0; index < lengthB; ++index)
-	{
-		auto& column = matrixB[index];
+    for (int index = 0; index < lengthB; ++index)
+    {
+        auto& column = matrixB[index];
 
-		column.resize(size);
+        column.resize(size);
 
-		for (int position = 0; position < size; ++position)
-		{
-			column[position] = next(istream);
-		}
-	}
+        for (int position = 0; position < size; ++position)
+        {
+            column[position] = next(istream);
+        }
+    }
 
-	const auto pick = [&matrixA, &matrixB](const int matrixIdxA,
-		const int matrixIdxB,
-		const int elementIdx)
-	{
-		return std::max(matrixA[matrixIdxA][elementIdx], matrixB[matrixIdxB][elementIdx]);
-	};
+    const auto pick = [&matrixA, &matrixB] (const int matrixIdxA,
+        const int matrixIdxB,
+        const int elementIdx,
+        bool& side)
+    {
+        side = matrixA[matrixIdxA][elementIdx] > matrixB[matrixIdxB][elementIdx];
 
-	struct MarkUp
-	{
-		int left;
-		int absolute;
-		int right;
-	};
+        return side ? matrixA[matrixIdxA][elementIdx] : matrixB[matrixIdxB][elementIdx];
+    };
 
-	union
-	{
-		MarkUp minimum;
-		int	   index_access[3];
-	};
+    struct MarkUp
+    {
+        int left;
+        int absolute;
+        int right;
+    };
 
-	const int lengthQ = next(istream);
+    union
+    {
+        MarkUp minimum;
+        int    index_access[3];
+    };
 
-	std::string result;
+    const int lengthQ = next(istream);
 
-	for (int index = 0; index < lengthQ; ++index)
-	{
-		if (index > 0)
-		{
-			result += '\n';
-		}
+    for (int index = 0; index < lengthQ; ++index)
+    {
+        if (index > 0)
+        {
+            output << '\n';
+        }
 
-		const int matrixIdxA = next(istream) - 1U;
-		const int matrixIdxB = next(istream) - 1U;
+        const int matrixIdxA = next(istream) - 1U;
+        const int matrixIdxB = next(istream) - 1U;
 
-		int left = 0;
-		int right = size - 1;
+        bool side = true;
 
-		while (std::abs(right - left) > 1U)
-		{
-			const int middle = (left + right) / 2U;
+        int left = 0;
+        int right = size - 1;
 
-			const int lquad = (left + middle) / 2U;
-			const int rquad = (right + middle) / 2U;
+        while (std::abs(right - left) > 1U)
+        {
+            int middle = (left + right) / 2U;
 
-			const int xx = pick(matrixIdxA, matrixIdxB, middle);
+            pick(matrixIdxA, matrixIdxB, middle, side);
 
-			const int lx = pick(matrixIdxA, matrixIdxB, lquad);
-			const int rx = pick(matrixIdxA, matrixIdxB, rquad);
+            if (side == false)
+            {
+                left = middle;
+            }
+            else
+            {
+                right = middle;
+            }
+        }
 
-			if (lx < xx)
-			{
-				right = middle;
-			}
-			else if (rx < xx)
-			{
-				left = middle;
-			}
-			else
-			{
-				left = lquad;
-				right = rquad;
-			}
-		}
+        const int zleft = pick(matrixIdxA, matrixIdxB, left, side);
+        const int zright = pick(matrixIdxA, matrixIdxB, right, side);
 
-		const int zleft = pick(matrixIdxA, matrixIdxB, left);
-		const int zright = pick(matrixIdxA, matrixIdxB, right);
-
-		if (zleft < zright)
-		{
-			result += std::to_string(left + 1U);
-		}
-		else
-		{
-			result += std::to_string(right + 1U);
-		}
-	}
-
-	output << result;
+        if (zleft < zright)
+        {
+            output << left + 1U;
+        }
+        else
+        {
+            output << right + 1U;
+        }
+    }
 }
 
 #ifndef DEBUG_rW1T3
 
 int main(int argc, char* argv[])
 {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
     rW1T3 task;
 
     task.run(std::cin, std::cout);
