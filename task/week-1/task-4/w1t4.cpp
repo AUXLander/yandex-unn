@@ -14,14 +14,14 @@ void processPoints(const std::vector<Point>& points, std::vector<Bound>& buffer,
 
 	for (const auto& point : points)
 	{
-		const double cxx = std::pow(radius, 2.0) - std::pow(point.y, 2.0);
+		const double cxx = std::pow(radius, 2.0) - std::pow(point.coord_y, 2.0);
 
 		if (cxx >= 0.0)
 		{
 			const double cx = std::pow(cxx, 0.5);
 
-			buffer[lpos].xoffset = point.x - cx;
-			buffer[rpos].xoffset = point.x + cx;
+			buffer[lpos].xoffset = point.coord_x - cx;
+			buffer[rpos].xoffset = point.coord_x + cx;
 		}
 		else
 		{
@@ -81,8 +81,8 @@ void W1T4::main(std::istream& input, std::ostream& output)
 		input >> tx;
 		input >> ty;
 
-		points[index].x = tx;
-		points[index].y = ty;
+		points[index].coord_x = tx;
+		points[index].coord_y = ty;
 	}
 
 	double start = 0.0;

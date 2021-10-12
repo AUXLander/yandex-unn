@@ -9,15 +9,15 @@
 
 struct Point : private std::pair<double, double>
 {
-	double& x = std::pair<double, double>::first;
-	double& y = std::pair<double, double>::second;
+	double& coord_x = std::pair<double, double>::first;
+	double& coord_y = std::pair<double, double>::second;
 
 	Point() : std::pair<double, double>() {}
 	Point(const double x, const double y) : std::pair<double, double>(x, y) {}
 
 	inline bool operator<(const Point& other) const
 	{
-		return (this->x < other.x) || ((this->x == other.x) && (this->y < other.y));
+		return (this->coord_x < other.coord_x) || ((this->coord_x == other.coord_x) && (this->coord_y < other.coord_y));
 	}
 };
 
