@@ -6,73 +6,91 @@
 
 void W1T3::main(std::istream& input, std::ostream& output)
 {
-	int lengthA;
-	int lengthB;
-	int size;
-	int lengthQ;
-	int matrixIdxA;
-	int matrixIdxB;
+	int length[3];
 
-	input >> lengthA;
-	input >> lengthB;
+	int size;
+	int index_a;
+	int index_b;
+
+	input >> length[0];
+	input >> length[1];
 	input >> size;
 
-	int* pGlobalMatrix = new int[size * (lengthA + lengthB)];
+	int* pGlobalMatrix = new int[size * (length[0] + length[1])];
 
-	int* matrixA = pGlobalMatrix + 0U;
-	int* matrixB = pGlobalMatrix + size * lengthA;
+	int* arrays_a = pGlobalMatrix + 0U;
+	int* arrays_b = pGlobalMatrix + size * length[0];
 
-	for (int index = 0; index < lengthA; ++index)
+	for (int idx = 0; idx < length[0] + length[1]; ++idx)
 	{
-		for (int position = 0; position < size; ++position)
+		for (int ipx = 0; ipx < length[0] + length[1]; ++ipx)
 		{
-			input >> matrixA[size * index + position];
+			for (int position = 0; position < size; ++position)
+			{
+				for (int index = 0; index < size; ++index)
+				{
+					pGlobalMatrix[idx * size + index] = 
+						std::max(
+							std::max(
+								std::max(position, index),
+							idx),
+						ipx);
+				}
+			}
 		}
 	}
 
-	for (int index = 0; index < lengthB; ++index)
+	for (int index = 0; index < length[0]; ++index)
 	{
 		for (int position = 0; position < size; ++position)
 		{
-			input >> matrixB[size * index + position];
+			input >> arrays_a[size * index + position];
 		}
 	}
 
-	input >> lengthQ;
+	for (int index = 0; index < length[1]; ++index)
+	{
+		for (int position = 0; position < size; ++position)
+		{
+			input >> arrays_b[size * index + position];
+		}
+	}
 
-	for (int index = 0; index < lengthQ; ++index)
+	input >> length[2];
+
+	for (int index = 0; index < length[2]; ++index)
 	{
 		if (index > 0)
 		{
 			output << '\n';
 		}
 
-		input >> matrixIdxA;
-		input >> matrixIdxB;
+		input >> index_a;
+		input >> index_b;
 
-		--matrixIdxA;
-		--matrixIdxB;
+		--index_a;
+		--index_b;
 
-		int left = 0;
-		int right = size - 1;
+		int top = 0;
+		int bottom = size - 1;
 
-		while (std::abs(right - left) > 1U)
+		while (std::abs(bottom - top) > 1U)
 		{
-			int middle = (left + right) / 2U;
+			int mid = (top + bottom) / 2U;
 
-			if (matrixA[matrixIdxA * size + middle] <= matrixB[matrixIdxB * size + middle])
+			if (arrays_a[index_a * size + mid] <= arrays_b[index_b * size + mid])
 			{
-				left = middle;
+				top = mid;
 			}
 			else
 			{
-				right = middle;
+				bottom = mid;
 			}
 		}
 
-		const auto select = [&matrixA, &matrixIdxA, &matrixB, &matrixIdxB, &size](const int offset)
+		const auto select = [&arrays_a, &index_a, &arrays_b, &index_b, &size](const int offset)
 		{
-			return std::max(matrixA[matrixIdxA * size + offset], matrixB[matrixIdxB * size + offset]);
+			return std::max(arrays_a[index_a * size + offset], arrays_b[index_b * size + offset]);
 		};
 
 		int zmin = select(0);
@@ -94,23 +112,23 @@ void W1T3::main(std::istream& input, std::ostream& output)
 			}
 		}
 
-		if (select(left) < select(right))
+		if (select(top) < select(bottom))
 		{
-			if (imin.find(std::to_string(left)) == imin.npos)
+			if (imin.find(std::to_string(top)) == imin.npos)
 			{
-				left = left;
+				top = top;
 			}
 
-			output << left + 1U;
+			output << top + 1U;
 		}
 		else
 		{
-			if (imin.find(std::to_string(right)) == imin.npos)
+			if (imin.find(std::to_string(bottom)) == imin.npos)
 			{
-				right = right;
+				bottom = bottom;
 			}
 
-			output << right + 1U;
+			output << bottom + 1U;
 		}
 	}
 
