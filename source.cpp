@@ -12,24 +12,23 @@
 #include "task/week-1/task-3/w1t3.h"
 #include "task/week-1/task-4/w1t4.h"
 
+#include "task//hw-2/task-2/w2t2.hpp"
+
 Test test(std::cin, std::cout);
 
-W1T1 t1(&test);
-W1T2 t2(&test);
-W1T3 t3(&test);
-W1T4 t4(&test);
+W2T2 t2(&test);
 
 void tmain(int argc, char* argv[])
 {
-	t1.run(std::cin, std::cout);	
+	
 }
 
 int main(int argc, char* argv[])
 {
-	t1.selftest();
+	std::ios_base::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+
 	t2.selftest();
-	t3.selftest();
-	t4.selftest();
 
 	return 0;
 }

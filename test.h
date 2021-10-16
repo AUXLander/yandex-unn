@@ -6,6 +6,7 @@
 #include <iostream> 
 #include <sstream>
 #include <cmath>
+#include <chrono>
 
 #include "task.h"
 
@@ -25,6 +26,8 @@ class Test
 		int m_size_after;
 		int m_size_before;
 
+		long long ms_duration;
+
 		std::string m_result;
 
 		TestContainer(Task& task, std::istream& input, std::stringstream& output) : m_task(task), m_input(input), m_output(output), m_size_after(0), m_size_before(0) {}
@@ -37,7 +40,13 @@ class Test
 
 			m_input.rdbuf(buffer.rdbuf());
 
+			auto start = std::chrono::system_clock::now();
+
 			m_task.run(m_input, m_output);
+
+			auto end = std::chrono::system_clock::now();
+
+			ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
 			m_result = std::move(m_output.str());
 
@@ -60,7 +69,7 @@ class Test
 				}
 				else
 				{
-					std::cout << "Test passed!" << std::endl;
+					std::cout << "Test passed in: " << ms_duration << " ms" << std::endl;
 				}
 
 				return b_result;
