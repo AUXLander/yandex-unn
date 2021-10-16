@@ -1,5 +1,7 @@
 /.vs/
 /Debug/
 /Debug/*
-/Realise/
-/Realise/*
+/Release/
+/Release/*
+/**/debug_solution
+/**/fast_solution
