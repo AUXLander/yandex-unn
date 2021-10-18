@@ -1,6 +1,8 @@
 #include <iostream>
 #include <iterator>
 
+#include <fstream>
+
 #include <sstream>
 #include <string>
 
@@ -30,8 +32,12 @@ int main(int argc, char* argv[])
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(nullptr);
 
-	t2.selftest();
-	t5.run(std::cin, std::cout);
+	//t2.selftest();
+
+	//std::ifstream file_in("E:\\UserData\\Projects\\Yandex\\yandex-unn\\input.txt");
+	std::ifstream file_in("input.txt");
+
+	t5.run(file_in, std::cout);
 
 	return 0;
 }
