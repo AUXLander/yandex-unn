@@ -29,7 +29,12 @@ struct Node
 
 	Node(PlaceFixedList& list, Vertex* value, const bool isVisible = false, Node* prev = nullptr)
 		: list(list), value(value), isVisible(isVisible), pPrev(prev), pNext(nullptr)
-	{}
+	{
+		if (prev != nullptr)
+		{
+			prev->pNext = this;
+		}
+	}
 
 	void hide();
 	void show();
@@ -53,6 +58,8 @@ struct Vertex
 	inline void unvisit();
 
 	inline Vertex& operator=(const Vertex& other);
+
+	inline bool operator<(const Vertex& other) const;
 };
 
 class PlaceFixedList
