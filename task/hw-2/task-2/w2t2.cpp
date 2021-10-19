@@ -177,5 +177,14 @@ void W2T2::test(Test* const reference)
 		input += std::to_string(lastElement);
 
 		reference->open(*this).input(input).expect(std::to_string(lastElement + commonElement) + "\n" + std::to_string(count - 1) + ' ' + std::to_string(count) + ' ');
+
+		reference->open(*this).input("5 1 1 1 1 1").expect("5\n1 2 3 4 5 ");
+		reference->open(*this).input("5 1 1 1 1 30").expect("31\n4 5 ");
+		reference->open(*this).input("5 1 1 1 30 1").expect("31\n3 4 ");
+		reference->open(*this).input("6 1 1 1 1 1 4").expect("5\n1 2 3 4 5 ");
+		
+		reference->open(*this).input("6 8 2 1 3 4 5").expect("17\n1 5 6 ");
+		reference->open(*this).input("10 8 1 1 1 1 1 1 1 1 1").expect("9\n1 2 ");
+
 	}
 }

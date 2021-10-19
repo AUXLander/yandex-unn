@@ -35,9 +35,10 @@ int main(int argc, char* argv[])
 	//t2.selftest();
 
 	//std::ifstream file_in("E:\\UserData\\Projects\\Yandex\\yandex-unn\\input.txt");
-	std::ifstream file_in("input.txt");
+	//std::ifstream file_in("input.txt");
 
-	t5.run(file_in, std::cout);
+	//t5.run(file_in, std::cout);
+	t5.selftest();
 
 	return 0;
 }
