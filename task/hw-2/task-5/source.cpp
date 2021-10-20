@@ -71,113 +71,77 @@ public:
     }
 };
 
-class rW2T5 : public Task
-{
-    void test(Test* const reference) override final {};
-    void main(std::istream& input, std::ostream& output) override final;
 
-public:
-    rW2T5() : Task(nullptr) {}
-    explicit rW2T5(Test* const reference) : Task(reference) {}
-};
 
 struct Vertex;
+struct PlaceFixedList;
 
-template<class T>
+struct Node
+{
+    PlaceFixedList& list;
+
+    Vertex* value;
+
+    bool isVisible;
+
+    Node* pPrev;
+    Node* pNext;
+
+    Node(PlaceFixedList& list, Vertex* value, const bool isVisible = false, Node* prev = nullptr)
+        : list(list), value(value), isVisible(isVisible), pPrev(prev), pNext(nullptr)
+    {
+        if (prev != nullptr)
+        {
+            prev->pNext = this;
+        }
+    }
+
+    void hide();
+    void show();
+};
+
+struct Vertex
+{
+    int xx;
+    int yy;
+
+    Node* pNode;
+
+    explicit Vertex(const int xx, const int yy, const bool visit = false, Node* pNode = nullptr);
+
+    inline void setNode(Node* pNode);
+
+    inline static int distance(const Vertex& first, const Vertex& second);
+
+    inline void visit();
+
+    inline void unvisit();
+
+    inline Vertex& operator=(const Vertex& other);
+
+    inline bool operator<(const Vertex& other) const;
+};
+
 class PlaceFixedList
 {
+    friend class Node;
     friend class Vertex;
-
-    struct Node;
 
     const size_t cap;
     size_t sz;
 
-    std::byte* pAllocationB;
+    char* pAllocationB;
 
     Node* pAllocation;
     Node* pFirst;
     Node* pLast;
 
-    struct Node
-    {
-        PlaceFixedList& list;
-
-        T* value;
-
-        bool isVisible;
-
-        Node* prev;
-        Node* next;
-
-        Node(PlaceFixedList& list, T* value, const bool isVisible = false, Node* prev = nullptr)
-            : list(list), value(value), isVisible(isVisible), prev(prev), next(nullptr)
-        {
-            if (prev != nullptr)
-            {
-                prev->next = this;
-            }
-        }
-
-        ~Node() {}
-
-        void hide()
-        {
-            isVisible = false;
-
-            if (prev != nullptr)
-            {
-                prev->next = next;
-            }
-            else
-            {
-                list.pFirst = next;
-            }
-
-            if (next != nullptr)
-            {
-                next->prev = prev;
-            }
-            else
-            {
-                list.pLast = prev;
-            }
-
-            --list.sz;
-        }
-
-        void show()
-        {
-            isVisible = true;
-
-            if (prev != nullptr)
-            {
-                prev->next = this;
-            }
-            else
-            {
-                list.pFirst = this;
-            }
-
-            if (next != nullptr)
-            {
-                next->prev = this;
-            }
-            else
-            {
-                list.pLast = this;
-            }
-
-            ++list.sz;
-        }
-    };
-
 public:
-    explicit PlaceFixedList(std::vector<T>& container)
+    explicit PlaceFixedList(std::vector<Vertex>& container)
         : cap(container.size()), sz(0),
-        pAllocation(nullptr), pFirst(nullptr), pLast(nullptr)
+        pAllocationB(nullptr), pAllocation(nullptr), pFirst(nullptr), pLast(nullptr)
     {
-        pAllocationB = new std::byte[sizeof(Node) * cap];
+        pAllocationB = new char[sizeof(Node) * cap];
 
         pAllocation = reinterpret_cast<Node*>(pAllocationB);
 
@@ -187,15 +151,17 @@ public:
 
         if (cap > 0)
         {
-            pFirst = pPrevious 
-                    = new(pAllocation)
-                        Node(*this, container.data() + index, false, nullptr);
+            pFirst = pPrevious = new(pAllocation) Node(*this, 
+                container.data() + index, false, nullptr);
+
+            pPrevious->value->pNode = pPrevious;
 
             for (index = 1; index < cap; ++index)
             {
-                pPrevious
-                    = new(pAllocation + index) 
-                        Node(*this, container.data() + index, false, pPrevious);
+                pPrevious = new(pAllocation + index) Node(*this, 
+                    container.data() + index, false, pPrevious);
+
+                pPrevious->value->pNode = pPrevious;
             }
 
             if (cap > 0)
@@ -207,22 +173,22 @@ public:
         sz = index;
     }
 
-    Node* first()
+    inline Node* first()
     {
         return pFirst;
     }
 
-    Node* last()
+    inline Node* last()
     {
         return pLast;
     }
 
-    size_t size() const
+    inline size_t size() const
     {
         return sz;
     }
 
-    size_t capacity() const
+    inline size_t capacity() const
     {
         return cap;
     }
@@ -233,146 +199,19 @@ public:
     }
 };
 
-struct Point
-{
-    int xx;
-    int yy;
-
-    Point(int xx, int yy) : xx(xx), yy(yy) {};
-};
-
-
-struct Vertex
-{
-    Point point;
-
-    bool isVisited;
-
-    PlaceFixedList<Vertex>::Node* pNode;
-
-    explicit Vertex(const Point& point, const bool visit = false,
-            PlaceFixedList<Vertex>::Node* pNode = nullptr)
-        : point(point), isVisited(visit), pNode(pNode) {}
-
-    void reset()
-    {
-        isVisited = false;
-    }
-
-    void setNode(PlaceFixedList<Vertex>::Node* pNode)
-    {
-        this->pNode = pNode;
-    }
-
-    static int distance(const Vertex& first, const Vertex& second)
-    {
-        return std::abs(first.point.xx - second.point.xx);
-    }
-
-    void visit()
-    {
-        if (pNode != nullptr)
-        {
-            pNode->hide();
-        }
-
-        isVisited = true;
-    }
-
-    void unvisit()
-    {
-        if (pNode != nullptr)
-        {
-            pNode->show();
-        }
-
-        isVisited = false;
-    }
-
-    Vertex& operator=(const Vertex& other)
-    {
-        point = other.point;
-        isVisited = other.isVisited;
-
-        return *this;
-    }
-};
-
 class VertexBuffer
 {
-    size_t index = 0;
     size_t locked_count = 0;
 
-    PlaceFixedList<Vertex> cache;
+    PlaceFixedList cache;
 
 public:
-    explicit VertexBuffer(std::vector<Vertex>& map) : cache(map)
-    {
-        auto* pNode = cache.first();
+    explicit VertexBuffer(std::vector<Vertex>& map) : cache(map) {}
 
-        if (pNode != nullptr)
-        {
-            do
-            {
-                pNode->value->setNode(pNode);
-                pNode = pNode->next;
-            } while ((pNode != nullptr) && (pNode->next != nullptr));
+    void lock(Vertex& element);
+    void unlock(Vertex& element);
 
-            pNode->value->setNode(pNode);
-        }
-
-        pNode = pNode;
-    }
-
-    ~VertexBuffer() {}
-
-    void lock(Vertex& element)
-    {
-        element.visit();
-
-        ++locked_count;
-    }
-
-    void unlock(Vertex& element)
-    {
-        element.unvisit();
-
-        --locked_count;
-    }
-
-    Vertex* next(const size_t offset)
-    {
-        index = 0;
-        size_t sub_offset = 0;
-
-        auto* pNode = cache.first();
-
-        if (pNode != nullptr)
-        {
-            for (; (sub_offset < offset); ++sub_offset)
-            {
-                if (pNode->next == nullptr)
-                {
-                    if (pNode == pNode->list.last())
-                    {
-                        pNode = pNode->list.first();
-                    }
-                    else
-                    {
-                        return nullptr;
-                    }
-                }
-                else
-                {
-                    pNode = pNode->next;
-                }
-            }
-
-            return pNode->value;
-        }
-
-        return nullptr;
-    }
+    Vertex* next(const size_t offset);
 
     size_t avaible() const
     {
@@ -380,7 +219,149 @@ public:
     }
 };
 
-constexpr int invalid_time_value = std::numeric_limits<int>::max();
+class W2T5 : public Task
+{
+    void test(Test* const reference) override final {};
+    void main(std::istream& input, std::ostream& output) override final;
+
+public:
+    W2T5() : Task(nullptr) {}
+    explicit W2T5(Test* const reference) : Task(reference) {}
+};
+
+Vertex::Vertex(const int xx, const int yy, const bool visit, Node* pNode)
+    : xx(xx), yy(yy), pNode(pNode)
+{}
+
+void Vertex::setNode(Node* pNode)
+{
+    this->pNode = pNode;
+}
+
+int Vertex::distance(const Vertex& first, const Vertex& second)
+{
+    return std::abs(first.xx - second.xx);
+}
+
+void Vertex::visit()
+{
+    if (pNode != nullptr)
+    {
+        pNode->hide();
+    }
+}
+
+void Vertex::unvisit()
+{
+    if (pNode != nullptr)
+    {
+        pNode->show();
+    }
+}
+
+Vertex& Vertex::operator=(const Vertex& other)
+{
+    xx = other.xx;
+    yy = other.yy;
+
+    return *this;
+}
+
+bool Vertex::operator<(const Vertex& other) const
+{
+    return this->yy < other.yy;
+}
+
+
+
+
+void Node::hide()
+{
+    isVisible = false;
+
+    if (pPrev != nullptr)
+    {
+        pPrev->pNext = pNext;
+    }
+    else
+    {
+        list.pFirst = pNext;
+    }
+
+    if (pNext != nullptr)
+    {
+        pNext->pPrev = pPrev;
+    }
+    else
+    {
+        list.pLast = pPrev;
+    }
+
+    --list.sz;
+}
+
+void Node::show()
+{
+    isVisible = true;
+
+    if (pPrev != nullptr)
+    {
+        pPrev->pNext = this;
+    }
+    else
+    {
+        list.pFirst = this;
+    }
+
+    if (pNext != nullptr)
+    {
+        pNext->pPrev = this;
+    }
+    else
+    {
+        list.pLast = this;
+    }
+
+    ++list.sz;
+}
+
+
+
+
+void VertexBuffer::lock(Vertex& element)
+{
+    element.visit();
+
+    ++locked_count;
+}
+
+void VertexBuffer::unlock(Vertex& element)
+{
+    element.unvisit();
+
+    --locked_count;
+}
+
+Vertex* VertexBuffer::next(const size_t offset)
+{
+    size_t sub_offset = 0;
+
+    auto* pNode = cache.first();
+
+    if (pNode != nullptr)
+    {
+        for (; sub_offset < offset; ++sub_offset)
+        {
+            pNode = pNode->pNext;
+        }
+
+        return pNode->value;
+    }
+
+    return nullptr;
+}
+
+constexpr int invalid_time_value = 10'000'000;
 
 int research(VertexBuffer& container, Vertex& element, const int time)
 {
@@ -389,24 +370,21 @@ int research(VertexBuffer& container, Vertex& element, const int time)
     int min_time = invalid_time_value;
     const size_t avaible_count = container.avaible();
 
+    Vertex* pNext;
+
     for (size_t offset = 0; offset < avaible_count; ++offset)
     {
-        auto* pNext = container.next(offset);
+        pNext = container.next(offset);
 
         if (pNext != nullptr)
         {
-            auto& next = *pNext;
+            Vertex& next = *pNext;
 
-            auto distance = Vertex::distance(next, element);
+            const int distance = Vertex::distance(next, element);
 
-            if (next.point.yy - distance - time >= 0)
+            if (next.yy - distance - time >= 0)
             {
-                const int new_time = research(container, next, time + distance);
-
-                if (new_time >= 0)
-                {
-                    min_time = std::min(min_time, new_time);
-                }
+                min_time = std::min(min_time, research(container, next, time + distance));
             }
             else
             {
@@ -417,59 +395,49 @@ int research(VertexBuffer& container, Vertex& element, const int time)
         }
         else
         {
-            min_time = time;
+            container.unlock(element);
 
-            break;
+            return time;
         }
-    }
-
-    if (avaible_count == 0)
-    {
-        min_time = time;
     }
 
     container.unlock(element);
 
+    if (avaible_count == 0)
+    {
+        return time;
+    }
+
     return min_time;
 }
 
-void rW2T5::main(std::istream& input, std::ostream& output)
+void W2T5::main(std::istream& input, std::ostream& output)
 {
-    int NN;// = next(istream);
+    std::vector<Vertex> map;
 
-    input >> NN;
+    int SIZE;
+    int xx, yy;
 
-    std::vector<Point> points;
+    input >> SIZE;
 
-    points.reserve(NN);
+    map.reserve(SIZE);
 
-    for (int idx = 0; idx < NN; ++idx)
+    for (int i = 0; i < SIZE; ++i)
     {
-        int xx, yy;
+        input >> xx;
+        input >> yy;
 
-        input >> xx >> yy;
-
-        points.emplace_back(xx, yy);
+        map.emplace_back(xx, yy);
     }
 
-    if (NN == 1)
+    if (SIZE == 1)
     {
         output << 0;
 
         return;
     }
 
-    std::vector<Vertex> map;
-
-    map.reserve(points.size());
-
-    for (const auto& point : points)
-    {
-        map.emplace_back(point);
-    }
-
-    std::sort(map.begin(), map.end(), 
-        [](const Vertex& lhs, const Vertex& rhs) { return lhs.point.yy < rhs.point.yy; });
+    std::sort(map.begin(), map.end());
 
     VertexBuffer container(map);
 
@@ -477,17 +445,12 @@ void rW2T5::main(std::istream& input, std::ostream& output)
 
     for (auto& vertex : map)
     {
-        int time = research(container, vertex, 0);
-
-        if (time >= 0)
-        {
-            min_time = std::min(time, min_time);
-        }
+        min_time = std::min(min_time, research(container, vertex, 0));
     }
 
     if (min_time == invalid_time_value)
     {
-        output << "No solution\n";
+        output << "No solution";
     }
     else
     {
@@ -500,9 +463,11 @@ int main(int, char* [])
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
 
-    rW2T5 task;
+    W2T5 task;
 
     task.run(std::cin, std::cout);
 
     return 0;
 }
+
+

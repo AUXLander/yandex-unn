@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -90,7 +90,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="source.cpp" />
     <ClCompile Include="task\hw-2\task-2\w2t2.cpp" />
+    <ClCompile Include="task\hw-2\task-3\w2t3.cpp" />
     <ClCompile Include="task\hw-2\task-5\w2t5.cpp" />
     <ClCompile Include="task\week-1\task-1\w1t1.cpp" />
     <ClCompile Include="task\week-1\task-2\W1T2.cpp" />
@@ -154,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="task\hw-2\task-2\w2t2.hpp" />
+    <ClInclude Include="task\hw-2\task-3\w2t3.hpp" />
     <ClInclude Include="task\hw-2\task-5\w2t5.hpp" />
     <ClInclude Include="task\week-1\task-1\w1t1.h" />
     <ClInclude Include="task\week-1\task-2\W1T2.h" />
