@@ -55,7 +55,7 @@ class Test
 			return (*this);
 		}
 
-		bool expect(const std::string result, const int precision = -1) const
+		bool expect(const std::string result, const int precision = -1, const bool print = true) const
 		{
 			if (precision == -1)
 			{
@@ -65,7 +65,21 @@ class Test
 
 				if (b_result == false)
 				{
-					std::cout << "Result: " << substr << ", expected: " << result << std::endl;
+					std::cout << "Result: ";
+
+					if (print == true)
+					{
+						std::cout << substr;
+					}
+
+					std::cout << ", expected: ";
+
+					if (print == true)
+					{
+						std::cout << result;
+					}
+
+					std::cout << std::endl;
 				}
 				else
 				{

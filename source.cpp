@@ -20,28 +20,21 @@
 
 Test test(std::cin, std::cout);
 
-W2T2 t2(&test);
-W2T2 t3(&test);
-W2T5 t5(&test);
-
-void tmain(int argc, char* argv[])
-{
-	
-}
+W2T3 t3(&test);
 
 int main(int argc, char* argv[])
 {
-	std::ios_base::sync_with_stdio(false);
-	std::cin.tie(nullptr);
+	//std::ios_base::sync_with_stdio(false);
+	//std::cin.tie(nullptr);
 
 	//t2.selftest();
 
 	//std::ifstream file_in("E:\\UserData\\Projects\\Yandex\\yandex-unn\\input.txt");
 	//std::ifstream file_in("input.txt");
 
-	t3.run(std::cin, std::cout);
+//	t3.run(std::cin, std::cout);
 
-	//t3.selftest();
+	t3.selftest();
 
 	//t5.run(file_in, std::cout);
 	//t5.selftest();
