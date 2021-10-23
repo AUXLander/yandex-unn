@@ -1,10 +1,13 @@
 #include <iterator>
 #include <iostream>
 
+#include <fstream>
 #include <cstddef>
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <vector>
+#include <limits>
 
 class Test {};
 
@@ -15,10 +18,10 @@ protected:
 
     Test* const m_reference;
 
-    inline void reset() { m_index = 0; }
+    inline void Reset() { m_index = 0; }
 
     template<typename T>
-    T next(std::istream_iterator<T, char>& input)
+    T Next(std::istream_iterator<T, char>& input)
     {
         if (m_index > 0)
         {
@@ -29,21 +32,13 @@ protected:
 
         if (input == std::istream_iterator<T, char>())
         {
-            if constexpr (std::is_same<T, char>())
-            {
-                return '\0';
-            }
-            else
-            {
-                return static_cast<T>(NULL);
-            }
+            return '\0';
         }
 
         return *input;
     }
 
-    virtual void test(Test* const reference) = 0;
-    virtual void main(std::istream& input, std::ostream& output) = 0;
+    virtual void Main(std::istream& input, std::ostream& output) = 0;
 
 public:
     explicit Task(Test* const reference) : m_index(0), m_reference(reference) {};
@@ -53,47 +48,44 @@ public:
 
     virtual ~Task() {};
 
-    void selftest()
+    void Run(std::istream& input, std::ostream& output)
     {
-        if (m_reference != nullptr)
-        {
-            test(m_reference);
-        }
-    }
-
-    void run(std::istream& input, std::ostream& output)
-    {
-        reset();
-        main(input, output);
+        Reset();
+        Main(input, output);
     }
 };
 
+
 class W2T2 : public Task
 {
-    void test(Test* const reference) override final {};
-    void main(std::istream& input, std::ostream& output) override final;
+    void Main(std::istream& input, std::ostream& output) override final;
 
 public:
     W2T2() : Task(nullptr) {}
     explicit W2T2(Test* const reference) : Task(reference) {}
 };
 
-struct AssociatedValue : private std::pair<int, int>
+
+struct AssociatedValue : private std::pair<int64_t, int64_t>
 {
-    using LambdaOperator = const std::function<bool(const AssociatedValue&, const AssociatedValue&)>;
+    using LambdaOperator 
+        = const std::function<bool(const AssociatedValue&, const AssociatedValue&)>;
 
     static LambdaOperator less_value;
     static LambdaOperator less_index;
 
-    int& value = std::pair<int, int>::first;
-    int& index = std::pair<int, int>::second;
+    int64_t& value = std::pair<int64_t, int64_t>::first;
+    int64_t& index = std::pair<int64_t, int64_t>::second;
 
-    AssociatedValue() : std::pair<int, int>() {}
-    AssociatedValue(const int& value, const int& index) : std::pair<int, int>(value, index) {}
+    AssociatedValue() : std::pair<int64_t, int64_t>() {}
+    AssociatedValue(const int64_t& value, const int64_t& index) 
+        : std::pair<int64_t, int64_t>(value, index) {}
 
-    AssociatedValue(AssociatedValue&& other) noexcept : std::pair<int, int>(std::move(other)) {}
+    AssociatedValue(AssociatedValue&& other) noexcept 
+        : std::pair<int64_t, int64_t>(std::move(other)) {}
 
-    explicit AssociatedValue(const AssociatedValue& other) : std::pair<int, int>(other.value, other.index) {}
+    explicit AssociatedValue(const AssociatedValue& other) 
+        : std::pair<int64_t, int64_t>(other.value, other.index) {}
 
     AssociatedValue& operator= (const AssociatedValue& other)
     {
@@ -109,28 +101,31 @@ struct AssociatedValue : private std::pair<int, int>
     }
 };
 
-AssociatedValue::LambdaOperator AssociatedValue::less_value = [](const AssociatedValue& lhs, const AssociatedValue& rhs)
+AssociatedValue::LambdaOperator AssociatedValue::less_value = 
+[](const AssociatedValue& lhs, const AssociatedValue& rhs)
 {
     return lhs.value < rhs.value;
 };
 
-AssociatedValue::LambdaOperator AssociatedValue::less_index = [](const AssociatedValue& lhs, const AssociatedValue& rhs)
+AssociatedValue::LambdaOperator AssociatedValue::less_index = 
+[](const AssociatedValue& lhs, const AssociatedValue& rhs)
 {
     return lhs.index < rhs.index;
 };
 
-static int leftBoundSearch(const AssociatedValue* pBegin, const AssociatedValue* pEnd, const int offset, const int value)
+static int64_t LeftBoundSearch(const AssociatedValue* p_begin,
+    const AssociatedValue* p_end, const int64_t offset, const int64_t value)
 {
-    const int length = static_cast<int>(pEnd - pBegin);
+    const int64_t length = static_cast<int64_t>(p_end - p_begin);
 
-    int left = offset;
-    int right = length - 1U;
+    int64_t left = offset;
+    int64_t right = length - 1U;
 
     while (right - left > 1)
     {
-        int middle = (left + right) / 2;
+        int64_t middle = (left + right) / 2;
 
-        if (pBegin[middle].value <= value)
+        if (p_begin[middle].value <= value)
         {
             left = middle;
         }
@@ -140,7 +135,7 @@ static int leftBoundSearch(const AssociatedValue* pBegin, const AssociatedValue*
         }
     }
 
-    while ((left + 1 < length) && (pBegin[left + 1].value <= value))
+    while ((left + 1 < length) && (p_begin[left + 1].value <= value))
     {
         ++left;
     }
@@ -148,96 +143,101 @@ static int leftBoundSearch(const AssociatedValue* pBegin, const AssociatedValue*
     return left;
 }
 
-static void printIndex(std::ostream& output, const AssociatedValue* pBegin, const AssociatedValue* const pEnd)
+static void PrintIndex(std::ostream& output, 
+    const AssociatedValue* p_begin, const AssociatedValue* const p_end)
 {
     do
     {
-        output << pBegin->index << ' ';
-    }
-    while (++pBegin != pEnd);
+        output << p_begin->index << ' ';
+
+        ++p_begin;
+    } while (p_begin < p_end);
 }
 
-void W2T2::main(std::istream& input, std::ostream& output)
+void W2T2::Main(std::istream& input, std::ostream& output)
 {
-    std::istream_iterator<int, char> istream(input);
+    std::istream_iterator<int64_t, char> istream(input);
 
-    constexpr int reserved_for_summ_0 = 1U;
+    constexpr int64_t kReservedForSummNull = 1U;
 
-    constexpr int reserved = reserved_for_summ_0;
+    constexpr int64_t kReserved = kReservedForSummNull;
 
-    const int length = next(istream);
+    const int64_t length = Next(istream);
 
-    if (length <= 0)
+    if (length == 1)
     {
-        output << 0 << '\n';
+        output << Next(istream) << '\n';
+        output << 1 << ' ';
 
         return;
     }
 
-    std::byte* pAllocation = new std::byte[sizeof(AssociatedValue) * length + sizeof(int) * (length + reserved)];
+    std::byte* p_allocation 
+        = new std::byte[sizeof(AssociatedValue) * length 
+            + sizeof(int64_t) * (length + kReserved)];
 
-    AssociatedValue* const pBeginValue = reinterpret_cast<AssociatedValue*>(pAllocation);
-    AssociatedValue* const pEndValue = reinterpret_cast<AssociatedValue*>(pAllocation) + length;
+    AssociatedValue* const p_begin_value = reinterpret_cast<AssociatedValue*>(p_allocation);
+    AssociatedValue* const p_end_value = reinterpret_cast<AssociatedValue*>(p_allocation) + length;
 
-    AssociatedValue* const pValues = pBeginValue;
+    AssociatedValue* const p_values = p_begin_value;
 
-    int* const pSums = reinterpret_cast<int*>(pEndValue);
+    int64_t* const p_sums = reinterpret_cast<int64_t*>(p_end_value);
 
-    for (int index = 0; index < length; ++index)
+    for (int64_t index = 0; index < length; ++index)
     {
-        new(pBeginValue + index) AssociatedValue(next(istream), index + 1);
+        new(p_begin_value + index) AssociatedValue(Next(istream), index + 1);
     }
 
-    std::sort(pBeginValue, pEndValue, AssociatedValue::less_value);
+    std::sort(p_begin_value, p_end_value, AssociatedValue::less_value);
 
-    pSums[0] = 0;
+    p_sums[0] = 0;
 
-    for (int idx = 0; idx < length; ++idx)
+    for (int64_t idx = 0; idx < length; ++idx)
     {
-        pSums[reserved + idx] = pSums[idx] + pValues[idx].value;
+        p_sums[kReserved + idx] = p_sums[idx] + p_values[idx].value;
     }
 
-    int max = pSums[0];
+    int64_t max = p_sums[0];
 
-    AssociatedValue* pBeginIndex = pBeginValue;
-    AssociatedValue* pEndIndex = pBeginValue;
+    AssociatedValue* p_begin_index = p_begin_value;
+    AssociatedValue* p_end_index = p_begin_value;
 
-    for (int index = 0; index < length - 1; ++index)
+    for (int64_t index = 0; index < length - 1; ++index)
     {
-        const int ai = pValues[index + 0U].value;
-        const int aj = pValues[index + 1U].value;
+        const int64_t ai = p_values[index + 0U].value;
+        const int64_t aj = p_values[index + 1U].value;
 
-        const int boundIdx = leftBoundSearch(pBeginValue, pEndValue, index, ai + aj);
+        const int64_t bound_idx = LeftBoundSearch(p_begin_value, p_end_value, index, ai + aj);
 
-        const int hSum = pSums[boundIdx + 1U];
-        const int lSum = pSums[index];
+        const int64_t h_sum = p_sums[bound_idx + 1U];
+        const int64_t l_sum = p_sums[index];
 
-        if (hSum - lSum > max)
+        if (h_sum - l_sum > max)
         {
-            max = hSum - lSum;
+            max = h_sum - l_sum;
 
-            pBeginIndex = pBeginValue + index;
-            pEndIndex = pBeginValue + boundIdx + 1;
+            p_begin_index = p_begin_value + index;
+            p_end_index = p_begin_value + bound_idx + 1;
         }
     }
 
-    std::sort(pBeginIndex, pEndIndex, AssociatedValue::less_index);
+    std::sort(p_begin_index, p_end_index, AssociatedValue::less_index);
 
     output << max << '\n';
 
-    printIndex(output, pBeginIndex, pEndIndex);
+    PrintIndex(output, p_begin_index, p_end_index);
 
-    delete[] pAllocation;
+    delete[] p_allocation;
 }
 
-int main(int, char*[])
+int main(int, char* [])
 {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
 
     W2T2 task;
 
-    task.run(std::cin, std::cout);
+    task.Run(std::cin, std::cout);
 
     return 0;
 }
