@@ -72,151 +72,87 @@ public:
 };
 
 
-
-struct Vertex;
-struct PlaceFixedList;
-
-struct Node
+struct Path : private std::pair<int, bool>
 {
-    PlaceFixedList& list;
+    int& distance = std::pair<int, bool>::first;
+    bool& isVisited = std::pair<int, bool>::second;
 
-    Vertex* value;
+    Path() : std::pair<int, bool>()
+    {;}
 
-    bool isVisible;
+    Path(const int coordinate, const bool isVisited = false)
+        : std::pair<int, bool>(coordinate, isVisited)
+    {;}
 
-    Node* pPrev;
-    Node* pNext;
+    explicit Path(const Path& other)
+        : std::pair<int, bool>(other.distance, other.isVisited)
+    {;}
 
-    Node(PlaceFixedList& list, Vertex* value, const bool isVisible = false, Node* prev = nullptr)
-        : list(list), value(value), isVisible(isVisible), pPrev(prev), pNext(nullptr)
-    {
-        if (prev != nullptr)
-        {
-            prev->pNext = this;
-        }
-    }
-
-    void hide();
-    void show();
+    Path(Path&& other) noexcept
+        : std::pair<int, bool>(std::move(other))
+    {;}
 };
 
-struct Vertex
+struct AliPoint : private std::pair<int, int>
 {
-    int xx;
-    int yy;
+    int& coordinate = std::pair<int, int>::first;
+    int& lifetime = std::pair<int, int>::second;
 
-    Node* pNode;
+    AliPoint() : std::pair<int, int>()
+    {;}
 
-    explicit Vertex(const int xx, const int yy, const bool visit = false, Node* pNode = nullptr);
+    AliPoint(const int coordinate, const int lifetime)
+        : std::pair<int, int>(coordinate, lifetime)
+    {;}
 
-    inline void setNode(Node* pNode);
+    explicit AliPoint(const AliPoint& other)
+        : std::pair<int, int>(other.coordinate, other.lifetime)
+    {;}
 
-    inline static int distance(const Vertex& first, const Vertex& second);
+    AliPoint(AliPoint&& other) noexcept
+        : std::pair<int, int>(std::move(other))
+    {;}
 
-    inline void visit();
-
-    inline void unvisit();
-
-    inline Vertex& operator=(const Vertex& other);
-
-    inline bool operator<(const Vertex& other) const;
-};
-
-class PlaceFixedList
-{
-    friend class Node;
-    friend class Vertex;
-
-    const size_t cap;
-    size_t sz;
-
-    char* pAllocationB;
-
-    Node* pAllocation;
-    Node* pFirst;
-    Node* pLast;
-
-public:
-    explicit PlaceFixedList(std::vector<Vertex>& container)
-        : cap(container.size()), sz(0),
-        pAllocationB(nullptr), pAllocation(nullptr), pFirst(nullptr), pLast(nullptr)
+    inline AliPoint& operator=(const AliPoint& other)
     {
-        pAllocationB = new char[sizeof(Node) * cap];
+        this->lifetime = other.lifetime;
+        this->coordinate = other.coordinate;
 
-        pAllocation = reinterpret_cast<Node*>(pAllocationB);
-
-        size_t index = 0;
-
-        Node* pPrevious = nullptr;
-
-        if (cap > 0)
-        {
-            pFirst = pPrevious = new(pAllocation) Node(*this, 
-                container.data() + index, false, nullptr);
-
-            pPrevious->value->pNode = pPrevious;
-
-            for (index = 1; index < cap; ++index)
-            {
-                pPrevious = new(pAllocation + index) Node(*this, 
-                    container.data() + index, false, pPrevious);
-
-                pPrevious->value->pNode = pPrevious;
-            }
-
-            if (cap > 0)
-            {
-                pLast = pPrevious;
-            }
-        }
-
-        sz = index;
+        return *this;
     }
 
-    inline Node* first()
+    inline bool operator<(const AliPoint& other) const
     {
-        return pFirst;
-    }
-
-    inline Node* last()
-    {
-        return pLast;
-    }
-
-    inline size_t size() const
-    {
-        return sz;
-    }
-
-    inline size_t capacity() const
-    {
-        return cap;
-    }
-
-    ~PlaceFixedList()
-    {
-        delete[] pAllocationB;
+        return this->coordinate < other.coordinate;
     }
 };
 
-class VertexBuffer
+struct Explore
 {
-    size_t locked_count = 0;
+    using GraphTable = std::vector<std::vector<Path>>;
 
-    PlaceFixedList cache;
+    std::vector<AliPoint> coins;
 
-public:
-    explicit VertexBuffer(std::vector<Vertex>& map) : cache(map) {}
+    GraphTable leftTable;
+    GraphTable rightTable;
 
-    void lock(Vertex& element);
-    void unlock(Vertex& element);
+    explicit Explore(const size_t count) 
+        : coins(count), 
+          leftTable(count, std::vector<Path>(count)), 
+          rightTable(count, std::vector<Path>(count))
+    {;}
 
-    Vertex* next(const size_t offset);
+    int left(const int left, const int right);
+    int right(const int left, const int right);
 
-    size_t avaible() const
-    {
-        return cache.capacity() - locked_count;
-    }
+    int process();
+
+    static inline int distance(const AliPoint& lhs, const AliPoint& rhs);
+
+    static int check_vertex(const int res_left,
+                            const int add_left, 
+                            const int res_right, 
+                            const int add_right);
 };
 
 class W2T5 : public Task
@@ -229,232 +165,156 @@ public:
     explicit W2T5(Test* const reference) : Task(reference) {}
 };
 
-Vertex::Vertex(const int xx, const int yy, const bool visit, Node* pNode)
-    : xx(xx), yy(yy), pNode(pNode)
-{}
 
-void Vertex::setNode(Node* pNode)
+int Explore::distance(const AliPoint& lhs, const AliPoint& rhs)
 {
-    this->pNode = pNode;
+    return lhs.coordinate - rhs.coordinate;
 }
 
-int Vertex::distance(const Vertex& first, const Vertex& second)
+int Explore::check_vertex(const int res_left, 
+                          const int add_left, 
+                          const int res_right, 
+                          const int add_right)
 {
-    return std::abs(first.xx - second.xx);
+    if (res_left != -1 && res_right != -1)
+    {
+        return std::min(res_left + add_left, res_right + add_right);
+    }
+
+    if (res_left != -1)
+    {
+        return res_left + add_left;
+    }
+
+    if (res_right != -1)
+    {
+        return res_right + add_right;
+    }
+
+    return -1;
 }
 
-void Vertex::visit()
+int Explore::left(const int left, const int right)
 {
-    if (pNode != nullptr)
+    auto& table = leftTable;
+
+    if (table[left][right].isVisited == true)
     {
-        pNode->hide();
+        return table[left][right].distance;
     }
+
+    if (left == right)
+    {
+        return 0;
+    }
+
+    int result = -1;
+
+    const int res_left = Explore::left(left + 1, right);
+    const int add_left = Explore::distance(coins[left + 1], coins[left]);
+
+    const int res_right = Explore::right(left + 1, right);
+    const int add_right = Explore::distance(coins[right], coins[left]);
+
+    const int res_t = check_vertex(res_left, add_left, res_right, add_right);
+
+    if ((res_t != -1) && (coins[left].lifetime >= res_t))
+    {
+        result = res_t;
+    }
+
+    table[left][right].distance = result;
+    table[left][right].isVisited = true;
+
+    return result;
 }
 
-void Vertex::unvisit()
+int Explore::right(const int left, const int right)
 {
-    if (pNode != nullptr)
+    auto& table = rightTable;
+
+    if (left == right)
     {
-        pNode->show();
+        return 0;
     }
+
+    if (table[left][right].isVisited == true)
+    {
+        return table[left][right].distance;
+    }
+
+    int result = -1;
+
+    const int res_right = Explore::right(left, right - 1);
+    const int add_right = Explore::distance(coins[right], coins[right - 1]);
+
+    const int res_left = Explore::left(left, right - 1);
+    const int add_left = Explore::distance(coins[right], coins[left]);
+
+    int res_t = check_vertex(res_right, add_right, res_left, add_left);
+
+    if ((res_t != -1) && (coins[right].lifetime >= res_t))
+    {
+        result = res_t;
+    };
+
+    table[left][right].distance = result;
+    table[left][right].isVisited = true;
+
+    return result;
 }
 
-Vertex& Vertex::operator=(const Vertex& other)
+int Explore::process()
 {
-    xx = other.xx;
-    yy = other.yy;
-
-    return *this;
-}
-
-bool Vertex::operator<(const Vertex& other) const
-{
-    return this->yy < other.yy;
-}
-
-
-
-
-void Node::hide()
-{
-    isVisible = false;
-
-    if (pPrev != nullptr)
+    if (coins.empty())
     {
-        pPrev->pNext = pNext;
-    }
-    else
-    {
-        list.pFirst = pNext;
+        return 0;
     }
 
-    if (pNext != nullptr)
-    {
-        pNext->pPrev = pPrev;
-    }
-    else
-    {
-        list.pLast = pPrev;
-    }
+    int ans_left = Explore::left(0, coins.size() - 1);
+    int ans_right = Explore::right(0, coins.size() - 1);
 
-    --list.sz;
-}
-
-void Node::show()
-{
-    isVisible = true;
-
-    if (pPrev != nullptr)
+    if ((ans_left != -1) && (ans_right != -1))
     {
-        pPrev->pNext = this;
-    }
-    else
-    {
-        list.pFirst = this;
+        return std::min(ans_left, ans_right);
     }
 
-    if (pNext != nullptr)
+    if (ans_left != -1)
     {
-        pNext->pPrev = this;
-    }
-    else
-    {
-        list.pLast = this;
+        return ans_left;
     }
 
-    ++list.sz;
-}
-
-
-
-
-void VertexBuffer::lock(Vertex& element)
-{
-    element.visit();
-
-    ++locked_count;
-}
-
-void VertexBuffer::unlock(Vertex& element)
-{
-    element.unvisit();
-
-    --locked_count;
-}
-
-Vertex* VertexBuffer::next(const size_t offset)
-{
-    size_t sub_offset = 0;
-
-    auto* pNode = cache.first();
-
-    if (pNode != nullptr)
+    if (ans_right != -1)
     {
-        for (; sub_offset < offset; ++sub_offset)
-        {
-            pNode = pNode->pNext;
-        }
-
-        return pNode->value;
+        return ans_right;
     }
 
-    return nullptr;
-}
-
-constexpr int invalid_time_value = 10'000'000;
-
-int research(VertexBuffer& container, Vertex& element, const int time)
-{
-    container.lock(element);
-
-    int min_time = invalid_time_value;
-    const size_t avaible_count = container.avaible();
-
-    Vertex* pNext;
-
-    for (size_t offset = 0; offset < avaible_count; ++offset)
-    {
-        pNext = container.next(offset);
-
-        if (pNext != nullptr)
-        {
-            Vertex& next = *pNext;
-
-            const int distance = Vertex::distance(next, element);
-
-            if (next.yy - distance - time >= 0)
-            {
-                min_time = std::min(min_time, research(container, next, time + distance));
-            }
-            else
-            {
-                container.unlock(element);
-
-                return invalid_time_value;
-            }
-        }
-        else
-        {
-            container.unlock(element);
-
-            return time;
-        }
-    }
-
-    container.unlock(element);
-
-    if (avaible_count == 0)
-    {
-        return time;
-    }
-
-    return min_time;
+    return -1;
 }
 
 void W2T5::main(std::istream& input, std::ostream& output)
 {
-    std::vector<Vertex> map;
+    size_t count = 0;
+    input >> count;
 
-    int SIZE;
-    int xx, yy;
+    Explore solution(count);
 
-    input >> SIZE;
-
-    map.reserve(SIZE);
-
-    for (int i = 0; i < SIZE; ++i)
+    for (auto& coin : solution.coins)
     {
-        input >> xx;
-        input >> yy;
-
-        map.emplace_back(xx, yy);
+        input >> coin.coordinate >> coin.lifetime;
     }
 
-    if (SIZE == 1)
+    std::sort(solution.coins.begin(), solution.coins.end());
+
+    int min_time = solution.process();
+
+    if (min_time == -1)
     {
-        output << 0;
-
-        return;
-    }
-
-    std::sort(map.begin(), map.end());
-
-    VertexBuffer container(map);
-
-    int min_time = invalid_time_value;
-
-    for (auto& vertex : map)
-    {
-        min_time = std::min(min_time, research(container, vertex, 0));
-    }
-
-    if (min_time == invalid_time_value)
-    {
-        output << "No solution";
+        output << "No solution" << '\n';
     }
     else
     {
-        output << min_time;
+        output << min_time << '\n';
     }
 }
 
@@ -469,5 +329,3 @@ int main(int, char* [])
 
     return 0;
 }
-
-

@@ -90,7 +90,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
-      <Optimization>Custom</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
@@ -149,7 +149,7 @@
     <ClCompile Include="task\hw-2\task-1\W2T1.cpp" />
     <ClCompile Include="task\hw-2\task-2\w2t2.cpp" />
     <ClCompile Include="task\hw-2\task-3\w2t3.cpp" />
-    <ClCompile Include="task\hw-2\task-5\w2t5.cpp" />
+    <ClCompile Include="task\hw-2\task-5\w2t5_correct.cpp" />
     <ClCompile Include="task\week-1\task-1\w1t1.cpp" />
     <ClCompile Include="task\week-1\task-2\W1T2.cpp" />
     <ClCompile Include="task\week-1\task-3\w1t3.cpp" />
@@ -159,7 +159,7 @@
     <ClInclude Include="task\hw-2\task-1\W2T1.hpp" />
     <ClInclude Include="task\hw-2\task-2\w2t2.hpp" />
     <ClInclude Include="task\hw-2\task-3\w2t3.hpp" />
-    <ClInclude Include="task\hw-2\task-5\w2t5.hpp" />
+    <ClInclude Include="task\hw-2\task-5\w2t5_correct.hpp" />
     <ClInclude Include="task\week-1\task-1\w1t1.h" />
     <ClInclude Include="task\week-1\task-2\W1T2.h" />
     <ClInclude Include="task\week-1\task-3\w1t3.h" />

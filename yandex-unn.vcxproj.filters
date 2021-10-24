@@ -63,14 +63,14 @@
     <ClCompile Include="task\hw-2\task-2\w2t2.cpp">
       <Filter>Исходные файлы\hw-2\task-2</Filter>
     </ClCompile>
-    <ClCompile Include="task\hw-2\task-5\w2t5.cpp">
-      <Filter>Исходные файлы\hw-2\task-5</Filter>
-    </ClCompile>
     <ClCompile Include="task\hw-2\task-3\w2t3.cpp">
       <Filter>Исходные файлы\hw-2\task-3</Filter>
     </ClCompile>
     <ClCompile Include="task\hw-2\task-1\W2T1.cpp">
       <Filter>Исходные файлы\hw-2\task-1</Filter>
+    </ClCompile>
+    <ClCompile Include="task\hw-2\task-5\w2t5_correct.cpp">
+      <Filter>Исходные файлы\hw-2\task-5</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,14 +92,14 @@
     <ClInclude Include="task\hw-2\task-2\w2t2.hpp">
       <Filter>Исходные файлы\hw-2\task-2</Filter>
     </ClInclude>
-    <ClInclude Include="task\hw-2\task-5\w2t5.hpp">
-      <Filter>Исходные файлы\hw-2\task-5</Filter>
-    </ClInclude>
     <ClInclude Include="task\hw-2\task-3\w2t3.hpp">
       <Filter>Исходные файлы\hw-2\task-3</Filter>
     </ClInclude>
     <ClInclude Include="task\hw-2\task-1\W2T1.hpp">
       <Filter>Исходные файлы\hw-2\task-1</Filter>
+    </ClInclude>
+    <ClInclude Include="task\hw-2\task-5\w2t5_correct.hpp">
+      <Filter>Исходные файлы\hw-2\task-5</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
