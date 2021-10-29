@@ -17,16 +17,20 @@
 //#include "task//hw-2/task-1/w2t1.hpp"
 //#include "task//hw-2/task-2/w2t2.hpp"
 //#include "task//hw-2/task-3/w2t3.hpp"
-#include "task/hw-2/task-4/w2t4.hpp"
-#include "task//hw-2/task-5/w2t5_correct.hpp"
+//#include "task/hw-2/task-4/w2t4.hpp"
+//#include "task//hw-2/task-5/w2t5_correct.hpp"
+
+#include "task/hw-3/task-5/W3T5.h"
 
 Test test(std::cin, std::cout);
 
 //W2T1 t1(&test);
 //W2T2 t2(&test);
 //W2T3 t3(&test);
-W2T4 t4(&test);
+//W2T4 t4(&test);
 //W2T5 t5(&test);
+
+W3T5 t5(&test);
 
 
 int main(int argc, char* argv[])
@@ -47,7 +51,7 @@ int main(int argc, char* argv[])
 
 	//t5.run(file_in, std::cout);
 	
-	t4.selftest();
+	t5.selftest();
 
 	//t5.selftest();
 
