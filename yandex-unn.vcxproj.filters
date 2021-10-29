@@ -43,6 +43,9 @@
     <Filter Include="Исходные файлы\hw-2\task-1">
       <UniqueIdentifier>{d4f9019f-e725-4808-9aeb-1ea15c533f53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\hw-2\task-4">
+      <UniqueIdentifier>{e62c3671-f574-49ac-bd76-4f3e495bed87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source.cpp">
@@ -72,6 +75,9 @@
     <ClCompile Include="task\hw-2\task-5\w2t5_correct.cpp">
       <Filter>Исходные файлы\hw-2\task-5</Filter>
     </ClCompile>
+    <ClCompile Include="task\hw-2\task-4\w2t4.cpp">
+      <Filter>Исходные файлы\hw-2\task-4</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="test.h">
@@ -100,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="task\hw-2\task-5\w2t5_correct.hpp">
       <Filter>Исходные файлы\hw-2\task-5</Filter>
+    </ClInclude>
+    <ClInclude Include="task\hw-2\task-4\w2t4.hpp">
+      <Filter>Исходные файлы\hw-2\task-4</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
