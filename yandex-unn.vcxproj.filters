@@ -52,6 +52,9 @@
     <Filter Include="Исходные файлы\hw-3\task-5">
       <UniqueIdentifier>{df017043-36b3-4a81-986a-7e63191bd28a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\hw-3\task-1">
+      <UniqueIdentifier>{0364f25a-8b28-4713-b257-202abb1de4f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source.cpp">
@@ -87,6 +90,9 @@
     <ClCompile Include="task\hw-3\task-5\W3T5.cpp">
       <Filter>Исходные файлы\hw-3\task-5</Filter>
     </ClCompile>
+    <ClCompile Include="task\hw-3\task-1\W3T1.cpp">
+      <Filter>Исходные файлы\hw-3\task-1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="task\week-1\task-1\w1t1.h">
@@ -121,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="task\hw-3\task-5\W3T5.h">
       <Filter>Исходные файлы\hw-3\task-5</Filter>
+    </ClInclude>
+    <ClInclude Include="task\hw-3\task-1\W3T1.hpp">
+      <Filter>Исходные файлы\hw-3\task-1</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

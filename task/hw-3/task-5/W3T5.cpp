@@ -1,6 +1,7 @@
 #include "W3T5.h"
 #include <tuple>
 #include <vector>
+#include <list>
 #include <algorithm>
 #include <memory>
 
@@ -46,6 +47,7 @@ struct signature_t
 		return triplet(); 
 	};
 };
+
 using sign_key_type = unsigned int;
 using signature = signature_t<sign_key_type, float>;
 
@@ -60,26 +62,7 @@ signature::triplet signature::hash(sign_key_type a,
 	if (b > c) { std::swap(b, c); }
 	if (a > b) { std::swap(a, b); }
 
-	float normalize = a;
-
-	if (a == 0.0)
-	{
-		if (b == 0.0)
-		{
-			if (c == 0.0)
-			{
-				normalize = 1.0;
-			}
-			else
-			{
-				normalize = c;
-			}
-		}
-		else
-		{
-			normalize = b;
-		}
-	}
+	const float normalize = a;
 
 	return signature::triplet(
 		static_cast<float>(a) / normalize,
@@ -93,9 +76,46 @@ inline bool operator<(const sign_word& lhs, const sign_word& rhs)
 	return (*lhs) < (*rhs);
 }
 
-sign_dictionary::iterator binary_search(sign_dictionary& dictionary, const sign_word& word)
+inline bool operator==(const sign_word& lhs, const sign_word& rhs)
 {
-	return dictionary.end();
+	return (*lhs) == (*rhs);
+}
+
+sign_dictionary::iterator binary_insert(sign_dictionary& dict, const sign_word& word)
+{
+	if (dict.size() > 0)
+	{
+		auto first = dict.begin();
+		auto last = dict.end() - 1;
+
+		while (first < last)
+		{
+			auto mid = first + (last - first) / 2;
+
+			if (word == *mid)
+			{
+				auto copy = mid;
+				while ((mid < dict.end()) && (word == *mid))
+				{
+					copy = mid++;
+				}
+
+				return copy;
+			}
+			else if (word < *mid)
+			{
+				last = mid;
+			}
+			else
+			{
+				first = mid + 1;
+			}
+		}
+
+		return last;
+	}
+
+	return dict.end();
 }
 
 void W3T5::test(Test* const reference)
@@ -130,21 +150,24 @@ void W3T5::main(std::istream& input, std::ostream& output)
 
 	dictionary.reserve(length);
 
-	std::sort(dictionary.begin(), dictionary.end());
-
 	for (size_t index = 0, offset = 0; index < length; ++index)
 	{
 		input >> la >> lb >> lc;
 
 		std::unique_ptr<signature> snext(new signature(la, lb, lc));
 
-		const auto it = std::binary_search(dictionary.begin(), dictionary.end(), snext);
+		const auto it = binary_insert(dictionary, snext);
 
-		if (it == false)
+		if (it != dictionary.end())
+		{
+			if (!(*it == snext))
+			{
+				dictionary.insert(it, std::move(snext));
+			}
+		}
+		else
 		{
 			dictionary.push_back(std::move(snext));
-
-			std::sort(dictionary.begin(), dictionary.end());
 		}
 	}
 
