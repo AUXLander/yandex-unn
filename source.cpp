@@ -21,6 +21,7 @@
 //#include "task//hw-2/task-5/w2t5_correct.hpp"
 
 #include "task/hw-3/task-5/W3T5.h"
+#include "task/hw-3/task-3/W3T3.h"
 #include "task/hw-3/task-1/W3T1.hpp"
 
 Test test(std::cin, std::cout);
@@ -32,6 +33,8 @@ Test test(std::cin, std::cout);
 //W2T5 t5(&test);
 
 W3T5 t5(&test);
+
+W3T3 t3(&test);
 W3T1 t1(&test);
 
 
@@ -54,8 +57,13 @@ int main(int argc, char* argv[])
 	//t5.run(file_in, std::cout);
 	
 	//t5.selftest();
-	t1.run(std::cin, std::cout);
+	
+	//t1.selftest();
 
+	//t1.run(std::cin, std::cout);
+	 
+	t5.selftest();
+	 
 	//t5.selftest();
 
 

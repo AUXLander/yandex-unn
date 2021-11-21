@@ -4,6 +4,10 @@
 #include <list>
 #include <algorithm>
 #include <memory>
+#include <algorithm>
+
+constexpr size_t kGRandMax = 2147483647;
+
 
 template<typename T, typename H>
 struct signature_t
@@ -13,7 +17,15 @@ struct signature_t
 	const triplet sign;
 
 	signature_t(const T a, const T b, const T c)
-		: sign(this->hash(a, b, c))
+		: sign(this->process(a, b, c))
+	{;}
+
+	signature_t(const signature_t& other)
+		: sign(other.sign)
+	{;}
+
+	signature_t(signature_t&& other) 
+		: sign(std::move(other.sign))
 	{;}
 
 	~signature_t()
@@ -33,8 +45,8 @@ struct signature_t
 		std::tie(ld, le, lf) = other.sign;
 
 		if ((la < ld)
-		    || ((la == ld) && (lb < le))
-		    || ((lb == le) && (lc < lf)))
+			|| ((la == ld) && (lb < le))
+			|| ((lb == le) && (lc < lf)))
 		{
 			return true;
 		}
@@ -42,81 +54,118 @@ struct signature_t
 		return false;
 	}
 
-	triplet hash(T a, T b, T c) 
-	{ 
-		return triplet(); 
+	triplet process(T, T, T)
+	{
+		return triplet();
 	};
 };
 
 using sign_key_type = unsigned int;
 using signature = signature_t<sign_key_type, float>;
 
-using sign_word = std::unique_ptr<signature>;
-using sign_dictionary = std::vector<sign_word>;
-
-signature::triplet signature::hash(sign_key_type a,
-								   sign_key_type b, 
-	                               sign_key_type c)
+class signature_table
 {
-	if (a > b) { std::swap(a, b); }
-	if (b > c) { std::swap(b, c); }
-	if (a > b) { std::swap(a, b); }
+public:
+	using Node = std::pair<signature, size_t>;
 
-	const float normalize = a;
+	using bucket = std::list<Node>;
 
-	return signature::triplet(
-		static_cast<float>(a) / normalize,
-		static_cast<float>(b) / normalize,
-		static_cast<float>(c) / normalize
-	);
-}
+private:
+	size_t size;
+	std::vector<std::unique_ptr<bucket>> htable;
 
-inline bool operator<(const sign_word& lhs, const sign_word& rhs)
-{
-	return (*lhs) < (*rhs);
-}
+public:
+	explicit signature_table(const size_t size = 1000)
+		: size(size), htable(size)
+	{;}
 
-inline bool operator==(const sign_word& lhs, const sign_word& rhs)
-{
-	return (*lhs) == (*rhs);
-}
+	~signature_table()
+	{;}
 
-sign_dictionary::iterator binary_insert(sign_dictionary& dict, const sign_word& word)
-{
-	if (dict.size() > 0)
+	size_t hash_index(const signature& key);
+
+	void add(const signature& value)
 	{
-		auto first = dict.begin();
-		auto last = dict.end() - 1;
+		const auto index = hash_index(value);
 
-		while (first < last)
+		if (htable[index])
 		{
-			auto mid = first + (last - first) / 2;
+			auto& list = *htable[index];
+			auto  it = list.begin();
 
-			if (word == *mid)
+			while(it != list.end())
 			{
-				auto copy = mid;
-				while ((mid < dict.end()) && (word == *mid))
+				if (it->first == value)
 				{
-					copy = mid++;
+					++it->second;
+					return;
+				}
+				else if (value < it->first)
+				{
+					break;
 				}
 
-				return copy;
+				++it;
 			}
-			else if (word < *mid)
+
+			htable[index]->emplace(it, value, 1);
+		}
+		else
+		{
+			htable[index] = std::unique_ptr<bucket>(new bucket());
+			htable[index]->emplace_back(value, 1);
+		}
+	}
+
+	size_t not_empty_buckets()
+	{
+		size_t count = 0;
+
+		for (const auto& bucket : htable)
+		{
+			if (bucket)
 			{
-				last = mid;
-			}
-			else
-			{
-				first = mid + 1;
+				count += bucket->size();
 			}
 		}
 
-		return last;
+		return count;
 	}
+};
 
-	return dict.end();
+size_t signature_table::hash_index(const signature& key)
+{
+	constexpr size_t value = 1000;
+
+	float aa, bb, cc;
+
+	std::tie(aa, bb, cc) = key.sign;
+
+	const auto hash = ((static_cast<size_t>(bb + cc * value) % kGRandMax) + kGRandMax) % kGRandMax;
+	const auto index = hash % size;
+
+	return index;
 }
+
+template<>
+signature::triplet signature::process(
+                                      sign_key_type aa,
+                                      sign_key_type bb,
+                                      sign_key_type cc)
+{
+	if (aa > bb) { std::swap(aa, bb); }
+	if (bb > cc) { std::swap(bb, cc); }
+	if (aa > bb) { std::swap(aa, bb); }
+
+	const float normalize = std::max(1.f, static_cast<float>(aa)); // static_cast<float>(aa); //
+
+	return signature::triplet(
+		static_cast<float>(aa) / normalize,
+		static_cast<float>(bb) / normalize,
+		static_cast<float>(cc) / normalize
+	);
+}
+
 
 void W3T5::test(Test* const reference)
 {
@@ -124,6 +173,15 @@ void W3T5::test(Test* const reference)
 	{
 		reference->open(*this).input("3\n6 6 10 15 25 15 35 21 21").expect("1");
 		reference->open(*this).input("4\n3 4 5 10 11 12 6 7 8 6 8 10 ").expect("3");
+
+		reference->open(*this).input("4\n1 1 1 1 1 1 1 1 1 1 1 1 ").expect("1");
+
+		reference->open(*this).input("4\n1 1 3  1 3 1  3 1 1  1 1 1 ").expect("2");
+
+
+		reference->open(*this).input("2\n 1 2 3 100000000 200000000 300000000 ").expect("1");
+
+		reference->open(*this).input("3\n 1 2 3 0 1 2 0 1 2").expect("2");
 
 		size_t count = 1'000'000;
 
@@ -144,32 +202,18 @@ void W3T5::main(std::istream& input, std::ostream& output)
 {
 	size_t length;
 	sign_key_type la, lb, lc;
-	sign_dictionary dictionary;
+	signature_table table;
 
 	input >> length;
 
-	dictionary.reserve(length);
-
-	for (size_t index = 0, offset = 0; index < length; ++index)
+	for (size_t index = 0; index < length; ++index)
 	{
 		input >> la >> lb >> lc;
 
-		std::unique_ptr<signature> snext(new signature(la, lb, lc));
+		signature key(la, lb, lc);
 
-		const auto it = binary_insert(dictionary, snext);
-
-		if (it != dictionary.end())
-		{
-			if (!(*it == snext))
-			{
-				dictionary.insert(it, std::move(snext));
-			}
-		}
-		else
-		{
-			dictionary.push_back(std::move(snext));
-		}
+		table.add(key);
 	}
 
-	output << dictionary.size();
+	output << table.not_empty_buckets();
 }

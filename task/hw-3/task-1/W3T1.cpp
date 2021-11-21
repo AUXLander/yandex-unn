@@ -1,220 +1,28 @@
 #include "W3T1.hpp"
 
-#include <iostream>
 #include <vector>
-#include <string>
-#include <deque>
-#include <utility>
-#include <iterator>
-#include <cstdio>
-#include <vector>
-#include <cstdlib>
 
-#define struct_by_pair(name, nfirst, nsecond, type_first, type_second)\
-    struct name : public std::pair<type_first, type_second> \
-    {\
-        type_first &nfirst = std::pair<type_first, type_second>::first; \
-        type_second &nsecond = std::pair<type_first, type_second>::second; \
-        name() : std::pair<type_first, type_second>() {;}\
-        name(const type_first &nfirst, const type_second &nsecond) \
-            : std::pair<type_first, type_second>(nfirst, nsecond) {;} \
-    }
+#include "fixed_set.h"
 
-
-struct_by_pair(Coefficients, a, b, long long, long long);
-
-using std::vector;
-
-template<class Y> Y sqr(const Y& y) { return y * y; }
-
-constexpr long long g_BigPrimeNumber = 2147483647;
-
-//inline long long hashFunction(long long a_coefficient, long long b_coefficient, long long x) 
-//{
-//    return (((a_coefficient * x + b_coefficient) % g_BigPrimeNumber) + g_BigPrimeNumber) % g_BigPrimeNumber;
-//}
-
-inline long long hashFunction(const Coefficients& coefficient, long long x)
+void readInputToVector(std::istream& input, std::vector<int>& result_vector)
 {
-    return (((coefficient.a * x + coefficient.b) % g_BigPrimeNumber) + g_BigPrimeNumber) % g_BigPrimeNumber;
-}
+    unsigned int number_of_numbers;
 
-inline void generateHashFunctionCoefficients(long long &a, long long &b)
-{
-    a = rand() % (g_BigPrimeNumber - 1) + 1;
-    b = rand() % (g_BigPrimeNumber);
-}
+    int current_int;
 
+    input >> number_of_numbers;
 
-class FixedSet
-{
-    struct PrimaryHashTable
-    {
-        Coefficients coefficient;
-
-        struct SecondaryHashTable
-        {
-            Coefficients coefficient;
-
-            vector<int> numbers_to_store;
-            vector<int> numbers;
-            vector<int> numbers_empty;
-
-            SecondaryHashTable() : coefficient() {}
-        };
-
-        vector<SecondaryHashTable> secondary_hash_tables_;
-
-        // Returns number of cell needed to keep hash table.
-        size_t memoryToKeepNumbers() const
-        {
-            size_t result = 0;
-
-            for (auto sht = secondary_hash_tables_.begin(); sht != secondary_hash_tables_.end(); ++sht)
-            {
-                result += sqr(sht->numbers_to_store.size());
-            }
-
-            return result;
-        }
-
-        void cleanNumbersToStore()
-        {
-            for (auto sht = secondary_hash_tables_.begin(); sht != secondary_hash_tables_.end(); ++sht)
-            {
-                sht->numbers_to_store.clear();
-            }
-        }
-
-        // Resizes each secondary hash table to numbers_of_numbers_^2 size and
-        // generates coefficients a and b for it.
-        void prepareSecondaryHashTables()
-        {
-            for (auto sht_iter = secondary_hash_tables_.begin(); sht_iter != secondary_hash_tables_.end(); ++sht_iter)
-            {
-                sht_iter->numbers.resize(sqr(sht_iter->numbers_to_store.size()));
-
-                sht_iter->numbers_empty.resize(sqr(sht_iter->numbers_to_store.size()), true);
-
-                generateHashFunctionCoefficients(sht_iter->coefficient.a, sht_iter->coefficient.b);
-            }
-        }
-
-        void fillHashTable()
-        {
-            for (auto sht_iter = secondary_hash_tables_.begin(); sht_iter != secondary_hash_tables_.end(); ++sht_iter)
-            { 
-                bool success = false;
-
-                while (!success)
-                {
-                    generateHashFunctionCoefficients(sht_iter->coefficient.a, sht_iter->coefficient.b);
-
-                    // Clear stored numbers.
-                    sht_iter->numbers_empty.assign(sht_iter->numbers_empty.size(), true);
-
-                    // Try to refill secondary hash table.
-                    success = true;
-                    for (auto number_iter = sht_iter->numbers_to_store.begin(); number_iter != sht_iter->numbers_to_store.end(); ++number_iter)
-                    {
-                        long long hash_in_sht = hashFunction(sht_iter->coefficient, *number_iter) % sht_iter->numbers_to_store.size();
-
-                        if (sht_iter->numbers_empty[hash_in_sht])
-                        {
-                            sht_iter->numbers[hash_in_sht] = *number_iter;
-                            sht_iter->numbers_empty[hash_in_sht] = false;
-                        }
-                        else if (sht_iter->numbers[hash_in_sht] != *number_iter)
-                        {
-                            // Fail. Collision again.
-                            success = false;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        PrimaryHashTable() : coefficient() {}
-    };
-
-    PrimaryHashTable primary_hash_table_;
-
-    int total_number_of_numbers_;
-
-    static constexpr size_t k_MemoryLimitMultiplier = 4;
-
-public:
-
-    void preparePrimaryHashTable(const vector<int>& numbers)
-    {
-        auto &primary = primary_hash_table_;
-        auto& secondary = primary.secondary_hash_tables_;
-
-        secondary.resize(numbers.size());
-
-        do {
-            generateHashFunctionCoefficients(primary.coefficient.a, primary.coefficient.b);
-
-            primary.cleanNumbersToStore();
-
-            for (const auto number : numbers)
-            {
-                const auto hash = hashFunction(primary.coefficient, number);
-                const auto index = hash % numbers.size();
-
-                secondary[index].numbers_to_store.push_back(number);
-            }
-
-        } while (primary.memoryToKeepNumbers() > (k_MemoryLimitMultiplier * numbers.size()));
-    }
-
-    void Initialize(const vector<int>& numbers)
-    {
-        total_number_of_numbers_ = numbers.size();
-        preparePrimaryHashTable(numbers);
-        primary_hash_table_.prepareSecondaryHashTables();
-        primary_hash_table_.fillHashTable();
-    }
-
-    explicit FixedSet() 
-        : total_number_of_numbers_(0)
-    {;}
-
-    bool Contains(int number) const 
-    {
-        const auto &primary = primary_hash_table_;
-        const auto  primary_hash = hashFunction(primary.coefficient, number);
-        const auto  primary_shift = primary_hash % total_number_of_numbers_;
-
-        const auto &secondary = primary.secondary_hash_tables_[primary_shift];
-
-        if (secondary.numbers_to_store.size() == 0)
-        {
-            return false;
-        }
-
-        const auto secondary_hash = hashFunction(secondary.coefficient, number) % secondary.numbers_to_store.size();
-
-        return (!secondary.numbers_empty[secondary_hash] && secondary.numbers[secondary_hash] == number);
-    }
-};
-
-void readInputToVector(vector<int>& result_vector)
-{
-    int number_of_numbers, current_int;
-
-    std::cin >> number_of_numbers;
+    result_vector.reserve(number_of_numbers);
     
-    for (int i = 0; i < number_of_numbers; ++i) {
-
-        std::cin >> current_int;
+    for (int i = 0; i < number_of_numbers; ++i)
+    {
+        input >> current_int;
 
         result_vector.push_back(current_int);
     }
 }
 
-void testNumbers(const FixedSet& fixed_set, const vector<int>& numbers_to_test, vector<bool>& result_of_test) 
+void testNumbers(const FixedSet& fixed_set, const std::vector<int>& numbers_to_test, std::vector<bool>& result_of_test)
 {
     for (const auto number : numbers_to_test)
     {
@@ -222,30 +30,46 @@ void testNumbers(const FixedSet& fixed_set, const vector<int>& numbers_to_test, 
     }
 }
 
-void writeOutput(const vector<bool>& output_vector) 
+void writeOutput(std::ostream& output, const std::vector<bool>& output_vector)
 {
-    for (vector<bool>::const_iterator it = output_vector.begin(); it != output_vector.end(); ++it)
+    for (const bool value : output_vector)
     {
-        *it ? printf("Yes\n") : printf("No\n");
+        output << (value ? "Yes" : "No") << '\n';
     }
 }
 
 
 void W3T1::test(Test* const reference)
 {
+    if (reference != nullptr)
+    {
+        reference->open(*this).input("0 1 1").expect("No\n");
 
+        reference->open(*this).input("3 1 2 3 4 1 2 3 4").expect("Yes\nYes\nYes\nNo\n");
+        reference->open(*this).input("3 3 1 2 4 10 1 4 2").expect("No\nYes\nNo\nYes\n");
+
+        reference->open(*this).input("4 12 10 3 25 6 1 2 3 4 5 0 ").expect("No\nNo\nYes\nNo\nNo\nNo\n");
+        reference->open(*this).input("2 1 1 3 1 3 1 ").expect("Yes\nNo\nYes\n");
+
+        reference->open(*this).input("3 1 1 1  2  1 1 ").expect("Yes\nYes\n");
+        reference->open(*this).input("3 -1 -100 2 4 3 2 2 7 ").expect("No\nYes\nYes\nNo\n");
+        reference->open(*this).input("6 10 -1 7 12 123 0 4 1 -20 0 -10 ").expect("No\nNo\nYes\nNo\n");
+        reference->open(*this).input("30 29 31 2 3 4 5 7 6 8 9 10 12 11 13 14 15 16 17 18 19 20 22 21 23 24 25 26 27 28 30 30 -1 -2 -6 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 20 22 ").expect("No\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nNo\nYes\nYes\n");
+        reference->open(*this).input("4 12 10 3 25 6 1 2 3 4 5 0 ").expect("No\nNo\nYes\nNo\nNo\nNo\n");
+        reference->open(*this).input("2 1 1 3 1 3 1 ").expect("Yes\nNo\nYes\n");
+
+    }
 }
 
 void W3T1::main(std::istream& input, std::ostream& output)
 {
     srand(2010);
-    vector<int> numbers, numbers_to_test;
-    vector<bool> result_of_test;
-    readInputToVector(numbers);
-    readInputToVector(numbers_to_test);
+    std::vector<int> numbers, numbers_to_test;
+    std::vector<bool> result_of_test;
+    readInputToVector(input, numbers);
+    readInputToVector(input, numbers_to_test);
     FixedSet fixed_set;
     fixed_set.Initialize(numbers);
     testNumbers(fixed_set, numbers_to_test, result_of_test);
-    writeOutput(result_of_test);
-    
+    writeOutput(output, result_of_test);
 }

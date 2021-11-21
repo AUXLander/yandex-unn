@@ -32,7 +32,7 @@ void W1T3::main(std::istream& input, std::ostream& output)
 		}
 	}
 	
-	const auto element = [&matrixA, &matrixB](const int i, const int j, const int k) { return std::max(matrixA[i][k], matrixB[j][k]); };
+	const auto element = [&matrixA, &matrixB](const int i, const int j, const int kk) { return std::max(matrixA[i][kk], matrixB[j][kk]); };
 
 	struct MarkUp
 	{
@@ -59,9 +59,9 @@ void W1T3::main(std::istream& input, std::ostream& output)
 		const int i = next(istream) - 1U;
 		const int j = next(istream) - 1U;
 
-		int k = mid;
+		int kk = mid;
 
-		minimum.absolute = element(i, j, k);
+		minimum.absolute = element(i, j, kk);
 
 		minimum.left = minimum.absolute;
 		minimum.right = minimum.absolute;
@@ -78,7 +78,7 @@ void W1T3::main(std::istream& input, std::ostream& output)
 				if (locmin < minimum.absolute)
 				{
 					minimum.absolute = locmin;
-					k = position;
+					kk = position;
 				}
 			}
 
@@ -89,7 +89,7 @@ void W1T3::main(std::istream& input, std::ostream& output)
 		}
 
 		outstring += '\n';
-		outstring += std::to_string(k + 1U);
+		outstring += std::to_string(kk + 1U);
 	}
 
 	output << outstring.erase(0, 1);

@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -90,7 +90,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
@@ -152,6 +152,7 @@
     <ClCompile Include="task\hw-2\task-4\w2t4.cpp" />
     <ClCompile Include="task\hw-2\task-5\w2t5_correct.cpp" />
     <ClCompile Include="task\hw-3\task-1\W3T1.cpp" />
+    <ClCompile Include="task\hw-3\task-3\W3T3.cpp" />
     <ClCompile Include="task\hw-3\task-5\W3T5.cpp" />
     <ClCompile Include="task\week-1\task-1\w1t1.cpp" />
     <ClCompile Include="task\week-1\task-2\W1T2.cpp" />
@@ -164,7 +165,9 @@
     <ClInclude Include="task\hw-2\task-3\w2t3.hpp" />
     <ClInclude Include="task\hw-2\task-4\w2t4.hpp" />
     <ClInclude Include="task\hw-2\task-5\w2t5_correct.hpp" />
+    <ClInclude Include="task\hw-3\task-1\fixed_set.h" />
     <ClInclude Include="task\hw-3\task-1\W3T1.hpp" />
+    <ClInclude Include="task\hw-3\task-3\W3T3.h" />
     <ClInclude Include="task\hw-3\task-5\W3T5.h" />
     <ClInclude Include="task\week-1\task-1\w1t1.h" />
     <ClInclude Include="task\week-1\task-2\W1T2.h" />
