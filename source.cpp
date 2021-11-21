@@ -40,8 +40,8 @@ W3T1 t1(&test);
 
 int main(int argc, char* argv[])
 {
-	//std::ios_base::sync_with_stdio(false);
-	//std::cin.tie(nullptr);
+	std::ios_base::sync_with_stdio(false);
+	std::cin.tie(nullptr);
 
 	//t1.selftest();
 

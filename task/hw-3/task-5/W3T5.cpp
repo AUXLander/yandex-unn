@@ -1,18 +1,39 @@
 #include "W3T5.h"
-#include <tuple>
 #include <vector>
 #include <list>
 #include <algorithm>
 #include <memory>
 #include <algorithm>
+#include <numeric>
+#include <functional>
 
-constexpr size_t kGRandMax = 2147483647;
+template<class Z>
+struct triplet_t
+{
+	Z aa;
+	Z bb;
+	Z cc;
 
+	triplet_t(const Z& aa, const Z& bb, const Z& cc)
+		: aa(aa), bb(bb), cc(cc)
+	{;}
+
+	~triplet_t()
+	{;}
+
+	inline bool operator== (const triplet_t<Z>& other) const
+	{
+		return (other.aa == aa) && (other.bb == bb) && (other.cc == cc);
+	}
+};
+
+template <typename T>
+inline T gcd(T a, T b) { while (b != 0) std::swap(b, a %= b); return a; }
 
 template<typename T, typename H>
 struct signature_t
 {
-	using triplet = std::tuple<H, H, H>;
+	using triplet = triplet_t<H>;
 
 	const triplet sign;
 
@@ -24,7 +45,7 @@ struct signature_t
 		: sign(other.sign)
 	{;}
 
-	signature_t(signature_t&& other) 
+	signature_t(signature_t&& other) noexcept
 		: sign(std::move(other.sign))
 	{;}
 
@@ -36,24 +57,6 @@ struct signature_t
 		return sign == other.sign;
 	}
 
-	inline bool operator< (const signature_t<T, H>& other) const
-	{
-		H la, lb, lc;
-		H ld, le, lf;
-
-		std::tie(la, lb, lc) = this->sign;
-		std::tie(ld, le, lf) = other.sign;
-
-		if ((la < ld)
-			|| ((la == ld) && (lb < le))
-			|| ((lb == le) && (lc < lf)))
-		{
-			return true;
-		}
-
-		return false;
-	}
-
 	triplet process(T, T, T)
 	{
 		return triplet();
@@ -61,60 +64,107 @@ struct signature_t
 };
 
 using sign_key_type = unsigned int;
-using signature = signature_t<sign_key_type, float>;
+using signature = signature_t<sign_key_type, unsigned int>;
 
 class signature_table
 {
-public:
-	using Node = std::pair<signature, size_t>;
+	class sub_signature_table
+	{
+	public:
+		using Node = std::pair<signature, size_t>;
 
-	using bucket = std::list<Node>;
+		using bucket = std::vector<Node>;
 
-private:
+	private:
+		size_t size;
+		std::vector<std::unique_ptr<bucket>> htable;
+
+	public:
+		explicit sub_signature_table(const size_t size = 1000)
+			: size(size), htable(size)
+		{;}
+
+		~sub_signature_table()
+		{;}
+
+		inline size_t hash_index(const signature& key)
+		{
+			const auto ha = std::hash<unsigned short>{}(key.sign.aa);
+			const auto hb = std::hash<unsigned short>{}(key.sign.bb);
+			const auto hc = std::hash<unsigned short>{}(key.sign.cc);
+
+			const auto hash = ha ^ (hb << 1) ^ (hc << 3);
+			const auto index = hash % size;
+
+			return index;
+		}
+
+		void add(const signature& value)
+		{
+			const auto index = hash_index(value);
+
+			if (htable[index])
+			{
+				for (size_t idx = 0; idx < htable[index]->size(); ++idx)
+				{
+					if (htable[index]->data()[idx].first == value)
+					{
+						++htable[index]->data()[idx].second;
+						return;
+					}
+				}
+			}
+			else
+			{
+				htable[index] = std::unique_ptr<bucket>(new bucket());
+			}
+
+			htable[index]->emplace_back(value, 1);
+
+			return;
+		}
+
+		size_t not_empty_buckets() const
+		{
+			size_t count = 0;
+
+			for (const auto& bucket : htable)
+			{
+				if (bucket)
+				{
+					count += bucket->size();
+				}
+			}
+
+			return count;
+		}
+	};
+
+
 	size_t size;
-	std::vector<std::unique_ptr<bucket>> htable;
-
+	std::vector<sub_signature_table> htable;
 public:
 	explicit signature_table(const size_t size = 1000)
 		: size(size), htable(size)
 	{;}
 
-	~signature_table()
-	{;}
+	inline size_t hash_index(const signature& key)
+	{
+		const auto ha = std::hash<unsigned int>{}(key.sign.aa);
+		const auto hb = std::hash<unsigned int>{}(key.sign.bb);
+		const auto hc = std::hash<unsigned int>{}(key.sign.cc);
 
-	size_t hash_index(const signature& key);
+		const auto hash = (ha << 0) ^ (hb << 1) ^ (hc << 3);
+		const auto index = hash % size;
+
+		return index;
+	}
 
 	void add(const signature& value)
 	{
 		const auto index = hash_index(value);
 
-		if (htable[index])
-		{
-			auto& list = *htable[index];
-			auto  it = list.begin();
-
-			while(it != list.end())
-			{
-				if (it->first == value)
-				{
-					++it->second;
-					return;
-				}
-				else if (value < it->first)
-				{
-					break;
-				}
-
-				++it;
-			}
-
-			htable[index]->emplace(it, value, 1);
-		}
-		else
-		{
-			htable[index] = std::unique_ptr<bucket>(new bucket());
-			htable[index]->emplace_back(value, 1);
-		}
+		return htable[index].add(value);
 	}
 
 	size_t not_empty_buckets()
@@ -123,65 +173,44 @@ public:
 
 		for (const auto& bucket : htable)
 		{
-			if (bucket)
-			{
-				count += bucket->size();
-			}
+			count += bucket.not_empty_buckets();
 		}
 
 		return count;
 	}
 };
 
-size_t signature_table::hash_index(const signature& key)
-{
-	constexpr size_t value = 1000;
-
-	float aa, bb, cc;
-
-	std::tie(aa, bb, cc) = key.sign;
-
-	const auto hash = ((static_cast<size_t>(bb + cc * value) % kGRandMax) + kGRandMax) % kGRandMax;
-	const auto index = hash % size;
-
-	return index;
-}
-
 template<>
 signature::triplet signature::process(
-                                      sign_key_type aa,
-                                      sign_key_type bb,
-                                      sign_key_type cc)
+	sign_key_type aa,
+	sign_key_type bb,
+	sign_key_type cc)
 {
 	if (aa > bb) { std::swap(aa, bb); }
 	if (bb > cc) { std::swap(bb, cc); }
 	if (aa > bb) { std::swap(aa, bb); }
 
-	const float normalize = std::max(1.f, static_cast<float>(aa)); // static_cast<float>(aa); //
+	const auto normalize = gcd(gcd(aa, bb), cc);
 
-	return signature::triplet(
-		static_cast<float>(aa) / normalize,
-		static_cast<float>(bb) / normalize,
-		static_cast<float>(cc) / normalize
-	);
+	signature::triplet object(aa / normalize, bb / normalize, cc / normalize);
+
+	return object;
 }
-
 
 void W3T5::test(Test* const reference)
 {
 	if (reference != nullptr)
 	{
-		reference->open(*this).input("3\n6 6 10 15 25 15 35 21 21").expect("1");
-		reference->open(*this).input("4\n3 4 5 10 11 12 6 7 8 6 8 10 ").expect("3");
+		reference->open(*this).input("3\n6 6 10 15 25 15 35 21 21").expect("1\n");
+		reference->open(*this).input("4\n3 4 5 10 11 12 6 7 8 6 8 10 ").expect("3\n");
 
-		reference->open(*this).input("4\n1 1 1 1 1 1 1 1 1 1 1 1 ").expect("1");
+		reference->open(*this).input("4\n1 1 1 1 1 1 1 1 1 1 1 1 ").expect("1\n");
 
-		reference->open(*this).input("4\n1 1 3  1 3 1  3 1 1  1 1 1 ").expect("2");
+		reference->open(*this).input("4\n1 1 3  1 3 1  3 1 1  1 1 1 ").expect("2\n");
 
+		reference->open(*this).input("2\n 1 2 3 100000000 200000000 300000000 ").expect("1\n");
 
-		reference->open(*this).input("2\n 1 2 3 100000000 200000000 300000000 ").expect("1");
-
-		reference->open(*this).input("3\n 1 2 3 0 1 2 0 1 2").expect("2");
+		reference->open(*this).input("3\n 1 2 3 0 1 2 0 1 2").expect("2\n");
 
 		size_t count = 1'000'000;
 
@@ -189,20 +218,40 @@ void W3T5::test(Test* const reference)
 
 		for (size_t i = 1; i <= count; ++i)
 		{
-			const auto ch = std::to_string(i);
+			const auto ch1 = std::to_string(i);
+			const auto ch2 = std::to_string(i);
+			const auto ch3 = std::to_string(i);
 
-			input += ch + ' ' + ch + ' ' + ch + ' ';
+			input += ch1 + ' ' + ch2 + ' ' + ch3 + ' ';
 		}
 
-		reference->open(*this).input(input).expect("1");
+		reference->open(*this).input(input).expect("1\n");
+
+		input = std::to_string(count) + ' ';
+
+		for (size_t i = 1; i <= count; ++i)
+		{
+			const auto ch1 = std::to_string(i + 1);
+			const auto ch2 = std::to_string(i + 2);
+			const auto ch3 = std::to_string(i + 3);
+
+			input += ch1 + ' ' + ch2 + ' ' + ch3 + ' ';
+		}
+
+		reference->open(*this).input(input).expect(std::to_string(count) + "\n");
+
+		return;
 	}
 }
 
 void W3T5::main(std::istream& input, std::ostream& output)
 {
+	std::ios_base::sync_with_stdio(false);
+	input.tie(nullptr);
+
 	size_t length;
-	sign_key_type la, lb, lc;
-	signature_table table;
+	sign_key_type la = 0, lb = 0, lc = 0;
+	signature_table table(1000);
 
 	input >> length;
 
@@ -215,5 +264,5 @@ void W3T5::main(std::istream& input, std::ostream& output)
 		table.add(key);
 	}
 
-	output << table.not_empty_buckets();
+	output << table.not_empty_buckets() << '\n';
 }
