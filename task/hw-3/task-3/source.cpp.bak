@@ -184,96 +184,96 @@ public:
 
 class Manager 
 {
-    using ChunkRef = std::list<Segment>::iterator;
+	using ChunkRef = std::list<Segment>::iterator;
 
-    int transaction_id;
-    std::list<Segment> memory;
-    HeapClassic<ChunkRef> memspace;
-    std::deque<ChunkRef> memalloc;
+	int transaction_id;
+	std::list<Segment> memory;
+	HeapClassic<ChunkRef> memspace;
+	std::deque<ChunkRef> memalloc;
 
 public:
-    explicit Manager(int size)
-    {
-        transaction_id = 0;
-        memory.emplace_back(1, size, true, 0);
-        memspace.insert(memory.begin());
-    }
+	explicit Manager(int size)
+	{
+		transaction_id = 0;
+		memory.emplace_back(1, size, true, 0);
+		memspace.insert(memory.begin());
+	}
 
-    ~Manager()
-    {;}
+	~Manager()
+	{;}
 
-    int allocate(int size)
-    {
-        ++transaction_id;
-        memalloc.resize(transaction_id, memory.end());
+	int allocate(int size)
+	{
+		++transaction_id;
+		memalloc.resize(transaction_id, memory.end());
 
-        if (memspace.empty())
-        {
-            return -1;
-        }
+		if (memspace.empty())
+		{
+			return -1;
+		}
 
-        if (memspace.max()->length < size)
-        {
-            return -1;
-        }
+		if (memspace.max()->length < size)
+		{
+			return -1;
+		}
 
-        auto free_chunk = memspace.pop_max();
+		auto free_chunk = memspace.pop_max();
 
-        memalloc[transaction_id - 1] = memory.emplace(free_chunk, free_chunk->start, size, false);
+		memalloc[transaction_id - 1] = memory.emplace(free_chunk, free_chunk->start, size, false);
 
-        if (free_chunk->length == size)
-        {
-            memory.erase(free_chunk);
-            return memalloc[transaction_id - 1]->start;
-        }
+		if (free_chunk->length == size)
+		{
+			memory.erase(free_chunk);
+			return memalloc[transaction_id - 1]->start;
+		}
 
-        free_chunk->length -= size;
-        free_chunk->start += size;
-        memspace.insert(free_chunk);
+		free_chunk->length -= size;
+		free_chunk->start += size;
+		memspace.insert(free_chunk);
 
-        return memalloc[transaction_id - 1]->start;
-    }
+		return memalloc[transaction_id - 1]->start;
+	}
 
-    void free(int id)
-    {
-        ++transaction_id;
+	void free(int id)
+	{
+		++transaction_id;
 
-        if (memalloc[id - 1] == memory.end())
-        {
-            return;
-        }
+		if (memalloc[id - 1] == memory.end())
+		{
+			return;
+		}
 
-        memalloc[id - 1]->empty = true;
+		memalloc[id - 1]->empty = true;
 
-        if (memalloc[id - 1] != memory.begin())
-        {
-            auto prev_chunk = memalloc[id - 1];
-            --prev_chunk;
+		if (memalloc[id - 1] != memory.begin())
+		{
+			auto prev_chunk = memalloc[id - 1];
+			--prev_chunk;
 
-            if (prev_chunk->empty)
-            {
-                memalloc[id - 1]->length += prev_chunk->length;
-                memalloc[id - 1]->start = prev_chunk->start;
-                memspace.erase(prev_chunk->index);
-                memory.erase(prev_chunk);
-            }
-        }
+			if (prev_chunk->empty)
+			{
+				memalloc[id - 1]->length += prev_chunk->length;
+				memalloc[id - 1]->start = prev_chunk->start;
+				memspace.erase(prev_chunk->index);
+				memory.erase(prev_chunk);
+			}
+		}
 
-        if (memalloc[id - 1] != --(memory.end()))
-        {
-            auto next_chunk = memalloc[id - 1];
-            ++next_chunk;
+		if (memalloc[id - 1] != --(memory.end()))
+		{
+			auto next_chunk = memalloc[id - 1];
+			++next_chunk;
 
-            if (next_chunk->empty)
-            {
-                memalloc[id - 1]->length += next_chunk->length;
-                memspace.erase(next_chunk->index);
-                memory.erase(next_chunk);
-            }
-        }
+			if (next_chunk->empty)
+			{
+				memalloc[id - 1]->length += next_chunk->length;
+				memspace.erase(next_chunk->index);
+				memory.erase(next_chunk);
+			}
+		}
 
-        memspace.insert(memalloc[id - 1]);
-    }
+		memspace.insert(memalloc[id - 1]);
+	}
 };
 
 void W3T3::main(std::istream& input, std::ostream& output)

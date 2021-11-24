@@ -1,240 +1,280 @@
 #include "W3T3.h"
 
+#include <deque>
 #include <vector>
 #include <list>
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
 
-using std::list;
-using std::swap;
-using std::vector;
+struct Segment 
+{
+	int start;
+	int length;
+	bool empty;
+	int index;
 
-struct Chunk {
-    int start_;
-    int length_;
-    bool is_free_;
-    int index_;
+	Segment(const int start = 0, const size_t length = 0,
+		    const bool empty = false, const size_t index = 0)
+		: start(start), length(length), 
+		  empty(empty), index(index) 
+	{;}
 
-    Chunk(int start = 0, int length = 0, bool is_free = false, int index = 0)
-        : start_(start), length_(length), is_free_(is_free), index_(index) {
-    }
+	~Segment()
+	{;}
 
-    bool operator<(const Chunk& other) const {
-        if (length_ < other.length_) {
-            return true;
-        }
-        if (length_ == other.length_) {
-            return start_ > other.start_;
-        }
-        return false;
-    }
+	inline bool operator== (const Segment& other) const
+	{
+		return (start == other.start) &&
+			   (index == other.index) &&
+			   (length == other.length) &&
+			   (empty == other.empty);
+	}
 
-    bool operator==(const Chunk& other) const {
-        return start_ == other.start_ && length_ == other.length_ && is_free_ == other.is_free_ &&
-            index_ == other.index_;
-    }
+	inline bool operator< (const Segment& other) const 
+	{
+		return (length < other.length) ||
+			   ((length == other.length) && (start > other.start));
+	}
 
-    bool operator>(const Chunk& other) const {
-        return other < *this;
-    }
+	inline bool operator> (const Segment& other) const
+	{
+		return other < *this;
+	}
 };
 
-class MaxChunkHeap {
-private:
-    vector<list<Chunk>::iterator> array_;
+template<class T>
+class HeapClassic 
+{
+	std::deque<T> buffer;
+
+	void build(const int root_index) 
+	{
+		int left_index = 2 * root_index + 1;
+		int right_index = 2 * root_index + 2;
+		int index = root_index;
+
+		if (left_index < static_cast<int>(buffer.size()) &&
+			*(buffer[left_index]) > *(buffer[index]))
+		{
+			index = left_index;
+		}
+
+		if (right_index < static_cast<int>(buffer.size()) &&
+			*(buffer[right_index]) > *(buffer[index]))
+		{
+			index = right_index;
+		}
+
+		if (index != root_index)
+		{
+			std::swap(buffer[root_index]->index, buffer[index]->index);
+			std::swap(buffer[root_index], buffer[index]);
+
+			build(index);
+		}
+	}
+
+	void rebuild(int index, const T& new_key)
+	{
+		buffer[index] = new_key;
+		new_key->index = index;
+		build(index);
+
+		while (index > 0 && *(buffer[(index - 1) / 2]) < *(buffer[index]))
+		{
+			std::swap(buffer[(index - 1) / 2]->index, buffer[index]->index);
+			std::swap(buffer[(index - 1) / 2], buffer[index]);
+
+			index = (index - 1) / 2;
+		}
+	}
+
+	void exclude(const size_t index)
+	{
+		buffer[index] = buffer[buffer.size() - 1];
+		buffer[index]->index = index;
+		buffer.pop_back();
+	}
 
 public:
-    bool Empty() const {
-        return array_.empty();
-    }
+	HeapClassic() 
+	{;}
 
-    void Heapify(int root_index) {
-        int left_son_index, right_son_index, largest_index;
-        left_son_index = 2 * root_index + 1;
-        right_son_index = 2 * root_index + 2;
-        largest_index = root_index;
-        if (left_son_index < static_cast<int>(array_.size()) &&
-            *(array_[left_son_index]) > *(array_[largest_index])) {
-            largest_index = left_son_index;
-        }
-        if (right_son_index < static_cast<int>(array_.size()) &&
-            *(array_[right_son_index]) > *(array_[largest_index])) {
-            largest_index = right_son_index;
-        }
-        if (largest_index != root_index) {
-            swap(array_[root_index]->index_, array_[largest_index]->index_);
-            swap(array_[root_index], array_[largest_index]);
-            Heapify(largest_index);
-        }
-    }
+	~HeapClassic() 
+	{;}
 
-    void ChangeKey(int index, list<Chunk>::iterator new_key) {
-        array_[index] = new_key;
-        new_key->index_ = index;
-        Heapify(index);
-        while (index > 0 && *(array_[(index - 1) / 2]) < *(array_[index])) {
-            swap(array_[(index - 1) / 2]->index_, array_[index]->index_);
-            swap(array_[(index - 1) / 2], array_[index]);
-            index = (index - 1) / 2;
-        }
-    }
+	inline bool empty() const 
+	{
+		return buffer.empty();
+	}
 
-    void Insert(list<Chunk>::iterator new_key) {
-        array_.push_back(new_key);
-        ChangeKey(array_.size() - 1, new_key);
-    }
+	void erase(const int index)
+	{
+		if (buffer.empty() == false)
+		{
+			exclude(index);
+			rebuild(index, buffer[index]);
+		}
+	}
 
-    list<Chunk>::iterator GetMax() {
-        return array_[0];
-    }
+	void insert(const T& new_key) 
+	{
+		buffer.push_back(new_key);
+		rebuild(buffer.size() - 1, new_key);
+	}
 
-    list<Chunk>::iterator ExtractMax() {
-        list<Chunk>::iterator max_element = array_[0];
-        array_[0] = array_[array_.size() - 1];
-        array_[0]->index_ = 0;
-        array_.pop_back();
-        Heapify(0);
-        return max_element;
-    }
+	T pop_max()
+	{
+		auto max_element = buffer[0];
 
-    void Remove(int index) {
-        if (array_.empty()) {
-            return;
-        }
-        array_[index] = array_[array_.size() - 1];
-        array_[index]->index_ = index;
-        array_.pop_back();
-        ChangeKey(index, array_[index]);
-    }
+		exclude(0);
+		build(0);
 
-    MaxChunkHeap() {
-    }
+		return max_element;
+	}
+
+	T max() 
+	{
+		return buffer[0];
+	}
 };
 
-class Allocator {
-private:
-    MaxChunkHeap memory_heap_;
-    list<Chunk> chunks_list_;
-    vector<list<Chunk>::iterator> allocated_chunks_;
-    int operations_counter_;
+class Manager 
+{
+	using ChunkRef = std::list<Segment>::iterator;
+
+	int transaction_id;
+	std::list<Segment> memory;
+	HeapClassic<ChunkRef> memspace;
+	std::deque<ChunkRef> memalloc;
 
 public:
-    explicit Allocator(int size_of_memory) {
-        chunks_list_.push_back(Chunk(1, size_of_memory, true, 0));
-        memory_heap_.Insert(chunks_list_.begin());
-        operations_counter_ = 0;
-    }
+	explicit Manager(int size)
+	{
+		transaction_id = 0;
+		memory.emplace_back(1, size, true, 0);
+		memspace.insert(memory.begin());
+	}
 
-    int AllocateMemory(int size) {
-        ++operations_counter_;
-        allocated_chunks_.resize(operations_counter_, chunks_list_.end());
+	~Manager()
+	{;}
 
-        if (memory_heap_.Empty()) {
-            return -1;
-        }
+	int allocate(int size)
+	{
+		++transaction_id;
+		memalloc.resize(transaction_id, memory.end());
 
-        if (memory_heap_.GetMax()->length_ < size) {
-            return -1;
-        }
+		if (memspace.empty())
+		{
+			return -1;
+		}
 
-        list<Chunk>::iterator free_chunk = memory_heap_.ExtractMax();
-        Chunk new_chunk(free_chunk->start_, size, false);
-        allocated_chunks_[operations_counter_ - 1] = chunks_list_.insert(free_chunk, new_chunk);
+		if (memspace.max()->length < size)
+		{
+			return -1;
+		}
 
-        if (free_chunk->length_ == size) {
-            chunks_list_.erase(free_chunk);
-            return allocated_chunks_[operations_counter_ - 1]->start_;
-        }
+		auto free_chunk = memspace.pop_max();
 
-        free_chunk->length_ -= size;
-        free_chunk->start_ += size;
-        memory_heap_.Insert(free_chunk);
-        return allocated_chunks_[operations_counter_ - 1]->start_;
-    }
+		memalloc[transaction_id - 1] = memory.emplace(free_chunk, free_chunk->start, size, false);
 
-    void DeallocateMemory(int num) {
-        ++operations_counter_;
-        if (allocated_chunks_[num - 1] == chunks_list_.end()) {
-            return;
-        }
+		if (free_chunk->length == size)
+		{
+			memory.erase(free_chunk);
+			return memalloc[transaction_id - 1]->start;
+		}
 
-        allocated_chunks_[num - 1]->is_free_ = true;
+		free_chunk->length -= size;
+		free_chunk->start += size;
+		memspace.insert(free_chunk);
 
-        // Merge with prev
-        if (allocated_chunks_[num - 1] != chunks_list_.begin()) {
-            list<Chunk>::iterator prev_chunk = allocated_chunks_[num - 1];
-            --prev_chunk;
-            if (prev_chunk->is_free_) {
-                allocated_chunks_[num - 1]->length_ += prev_chunk->length_;
-                allocated_chunks_[num - 1]->start_ = prev_chunk->start_;
-                memory_heap_.Remove(prev_chunk->index_);
-                chunks_list_.erase(prev_chunk);
-            }
-        }
-        // Merge with next
-        if (allocated_chunks_[num - 1] != --(chunks_list_.end())) {
-            list<Chunk>::iterator next_chunk = allocated_chunks_[num - 1];
-            ++next_chunk;
-            if (next_chunk->is_free_) {
-                allocated_chunks_[num - 1]->length_ += next_chunk->length_;
-                memory_heap_.Remove(next_chunk->index_);
-                chunks_list_.erase(next_chunk);
-            }
-        }
+		return memalloc[transaction_id - 1]->start;
+	}
 
-        memory_heap_.Insert(allocated_chunks_[num - 1]);
-    }
+	void free(int id)
+	{
+		++transaction_id;
+
+		if (memalloc[id - 1] == memory.end())
+		{
+			return;
+		}
+
+		memalloc[id - 1]->empty = true;
+
+		if (memalloc[id - 1] != memory.begin())
+		{
+			auto prev_chunk = memalloc[id - 1];
+			--prev_chunk;
+
+			if (prev_chunk->empty)
+			{
+				memalloc[id - 1]->length += prev_chunk->length;
+				memalloc[id - 1]->start = prev_chunk->start;
+				memspace.erase(prev_chunk->index);
+				memory.erase(prev_chunk);
+			}
+		}
+
+		if (memalloc[id - 1] != --(memory.end()))
+		{
+			auto next_chunk = memalloc[id - 1];
+			++next_chunk;
+
+			if (next_chunk->empty)
+			{
+				memalloc[id - 1]->length += next_chunk->length;
+				memspace.erase(next_chunk->index);
+				memory.erase(next_chunk);
+			}
+		}
+
+		memspace.insert(memalloc[id - 1]);
+	}
 };
-
-void ReadInputToVector(std::istream& input, vector<int>* vec)
-{
-    int number_of_numbers, cur_number;
-    input >> number_of_numbers;
-    
-    for (int i = 0; i < number_of_numbers; ++i) 
-    {
-        input >> cur_number;
-        vec->push_back(cur_number);
-    }
-}
-
-void PerformRequests(const vector<int>& requests, vector<int>* output_vec, Allocator* allocator) {
-    for (vector<int>::const_iterator it = requests.begin(); it != requests.end(); ++it) {
-        if (*it > 0) {
-            output_vec->push_back(allocator->AllocateMemory(*it));
-        }
-        if (*it < 0) {
-            allocator->DeallocateMemory(-(*it));
-        }
-    }
-}
-
-void WriteOutput(std::ostream& output, const vector<int>& vec)
-{
-    for (vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it) 
-    {
-        output << *it << "\n";
-    }
-}
 
 void W3T3::test(Test* const reference)
 {
-    if (reference != nullptr)
-    {
-        reference->open(*this).input("6 8 2 3 -1 3 3 -5 2 2 ").expect("1\n3\n-1\n-1\n1\n-1\n");
-    }
+	if (reference != nullptr)
+	{
+		reference->open(*this).input("6 8 2 3 -1 3 3 -5 2 2 ").expect("1\n3\n-1\n-1\n1\n-1\n");
+	}
 }
 
 void W3T3::main(std::istream& input, std::ostream& output)
 {
-    int size_of_memory;
-    std::cin >> size_of_memory;
-    Allocator allocator(size_of_memory);
-    vector<int> requests;
-    ReadInputToVector(input, &requests);
-    vector<int> output_vec;
-    PerformRequests(requests, &output_vec, &allocator);
-    WriteOutput(output, output_vec);
+	int size, count;
 
+	input >> size >> count;
+
+	Manager memory(size);
+
+	std::vector<int> output_vec;
+	std::vector<int> requests(count);
+
+	for (auto& request : requests)
+	{
+		input >> request;
+	}
+
+	for (const auto& request : requests)
+	{
+		if (request > 0)
+		{
+			const auto response = memory.allocate(request);
+
+			output_vec.emplace_back(response);
+		}
+
+		if (request < 0)
+		{
+			memory.free(-request);
+		}
+	}
+
+	for (const auto& element : output_vec)
+	{
+		output << element << '\n';
+	}
 }
