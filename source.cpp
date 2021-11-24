@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 
 	//t1.run(std::cin, std::cout);
 	 
-	t5.selftest();
+	t3.selftest();
 	 
 	//t5.selftest();
 
