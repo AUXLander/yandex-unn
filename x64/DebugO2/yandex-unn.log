@@ -1,0 +1,4 @@
+﻿  W4T2.cpp
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+  yandex-unn.vcxproj -> F:\UserData\Projects\Yandex\yandex-unn\x64\DebugO2\yandex-unn.exe

@@ -1,0 +1,139 @@
+﻿  source.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+  W2T1.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+  w2t2.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(108,7): error C2039: "byte": не является членом "std".
+D:\Program Files\Microsoft\VStudio\VC\Tools\MSVC\14.30.30705\include\functional(31): message : см. объявление "std"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(108,11): error C2065: byte: необъявленный идентификатор
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(108,13): error C2065: pAllocation: необъявленный идентификатор
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(108,36): error C2039: "byte": не является членом "std".
+D:\Program Files\Microsoft\VStudio\VC\Tools\MSVC\14.30.30705\include\functional(31): message : см. объявление "std"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(108,40): error C2061: синтаксическая ошибка: идентификатор "byte"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(110,74): error C2065: pAllocation: необъявленный идентификатор
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(111,72): error C2065: pAllocation: необъявленный идентификатор
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(111,25): error C2737: "<Нет данных>: необходимо инициализировать объект <Нет данных>
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(161,11): error C2065: pAllocation: необъявленный идентификатор
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-2\w2t2.cpp(161,22): error C2541: delete: нельзя удалять объекты, не являющиеся указателями
+  w2t3.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-3\w2t3.cpp(12,7): error C2039: "byte": не является членом "std".
+D:\Program Files\Microsoft\VStudio\VC\Tools\MSVC\14.30.30705\include\random(29): message : см. объявление "std"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-3\w2t3.cpp(38): message : выполняется компиляция ссылки на экземпляр класс шаблон функции "Container<T>"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-3\w2t3.cpp(12,11): error C2143: синтаксическая ошибка: отсутствие ";" перед "*"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-3\w2t3.cpp(12,1): error C4430: отсутствует спецификатор типа - предполагается int. Примечание. C++ не поддерживает int по умолчанию
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-3\w2t3.cpp(12,1): error C2238: непредвиденные лексемы перед ";"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-3\w2t3.cpp(19,47): error C2760: синтаксическая ошибка: непредвиденный элемент "идентификатор". Ожидается "спецификатор типа"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-3\w2t3.cpp(31,33): error C3861: p_allocation: идентификатор не найден
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-3\w2t3.cpp(36,12): error C3861: p_allocation: идентификатор не найден
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-3\w2t3.cpp(186,39): warning C4244: аргумент: преобразование "double" в "const unsigned __int64", возможна потеря данных
+  w2t4.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-4\w2t4.cpp(28,1): warning C4267: аргумент: преобразование из "size_t" в "_Ty"; возможна потеря данных
+          with
+          [
+              _Ty=uint32_t
+          ]
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-4\w2t4.cpp(31,1): warning C4267: аргумент: преобразование из "size_t" в "unsigned int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-4\w2t4.cpp(37,1): warning C4267: аргумент: преобразование из "size_t" в "_Ty"; возможна потеря данных
+          with
+          [
+              _Ty=uint32_t
+          ]
+  w2t5_correct.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-5\w2t5_correct.cpp(105,53): warning C4267: аргумент: преобразование из "size_t" в "const int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-2\task-5\w2t5_correct.cpp(106,55): warning C4267: аргумент: преобразование из "size_t" в "const int"; возможна потеря данных
+  W3T1.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-3\task-1\W3T1.cpp(17,23): warning C4018: <: несоответствие типов со знаком и без знака
+  W3T3.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-3\task-3\W3T3.cpp(21,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-3\task-3\W3T3.cpp(124,1): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-3\task-3\W3T3.cpp(122): message : во время компиляции функции-члена класс шаблон "void HeapClassic<Manager::ChunkRef>::insert(const T &)"
+          with
+          [
+              T=Manager::ChunkRef
+          ]
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-3\task-3\W3T3.cpp(157): message : выполняется компиляция ссылки на экземпляр шаблон функции "void HeapClassic<Manager::ChunkRef>::insert(const T &)"
+          with
+          [
+              T=Manager::ChunkRef
+          ]
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-3\task-3\W3T3.cpp(149): message : выполняется компиляция ссылки на экземпляр класс шаблон функции "HeapClassic<Manager::ChunkRef>"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-3\task-3\W3T3.cpp(96,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-3\task-3\W3T3.cpp(94): message : во время компиляции функции-члена класс шаблон "void HeapClassic<Manager::ChunkRef>::exclude(const size_t)"
+F:\UserData\Projects\Yandex\yandex-unn\task\hw-3\task-3\W3T3.cpp(131): message : выполняется компиляция ссылки на экземпляр шаблон функции "void HeapClassic<Manager::ChunkRef>::exclude(const size_t)"
+  W3T5.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+  W4T2.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+  w1t1.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-1\w1t1.cpp(78,124): error C2182: <template-parameter>: недопустимое использование типа "void"
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-1\w1t1.cpp(78,15): error C3313: "node": переменная не может иметь тип "auto &"
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-1\w1t1.cpp(78,124): error C2440: инициализация: невозможно преобразовать "void" в "int"
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-1\w1t1.cpp(78,15): message : Выражение, имеющее тип void, нельзя преобразовать в другой тип
+  W1T2.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+  w1t3.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(17,40): error C2182: <template-parameter>: недопустимое использование типа "void"
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(17,16): error C3313: "column": переменная не может иметь тип "auto &"
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(17,40): error C2440: инициализация: невозможно преобразовать "void" в "int"
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(17,16): message : Выражение, имеющее тип void, нельзя преобразовать в другой тип
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(27,40): error C2182: <template-parameter>: недопустимое использование типа "void"
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(27,16): error C3313: "column": переменная не может иметь тип "auto &"
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(27,40): error C2440: инициализация: невозможно преобразовать "void" в "int"
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(27,16): message : Выражение, имеющее тип void, нельзя преобразовать в другой тип
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(52,27): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(52,27): warning C4267: инициализация: преобразование из "size_t" в "const int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(53,42): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(53,42): warning C4267: инициализация: преобразование из "size_t" в "const int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\task\week-1\task-3\w1t3.cpp(73,65): warning C4267: аргумент: преобразование из "size_t" в "const int"; возможна потеря данных
+  w1t4.cpp
+F:\UserData\Projects\Yandex\yandex-unn\task.h(28,4): warning C4984: "if constexpr" — расширение языка C++17
+F:\UserData\Projects\Yandex\yandex-unn\task.h(17,4): message : Сообщение диагностики возникло в созданной компилятором функции "T Task::next(std::istream_iterator<T,char,std::char_traits<char>,ptrdiff_t> &)"
+F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
