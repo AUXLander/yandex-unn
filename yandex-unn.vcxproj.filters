@@ -64,9 +64,6 @@
     <Filter Include="Исходные файлы\hw-4\task-2">
       <UniqueIdentifier>{08c0a071-990f-420f-a6e0-85a75b1c4306}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\external">
-      <UniqueIdentifier>{9e818c1f-ef28-420b-bacf-58d9cf259176}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source.cpp">
@@ -158,11 +155,11 @@
     <ClInclude Include="task\hw-4\task-2\W4T2.hpp">
       <Filter>Исходные файлы\hw-4\task-2</Filter>
     </ClInclude>
-    <ClInclude Include="external\rbtree.h">
-      <Filter>Исходные файлы\external</Filter>
+    <ClInclude Include="task\hw-4\task-2\btree.h">
+      <Filter>Исходные файлы\hw-4\task-2</Filter>
     </ClInclude>
-    <ClInclude Include="external\rbmap.h">
-      <Filter>Исходные файлы\external</Filter>
+    <ClInclude Include="task\hw-4\task-2\map.h">
+      <Filter>Исходные файлы\hw-4\task-2</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

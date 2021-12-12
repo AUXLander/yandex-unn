@@ -227,8 +227,6 @@
     <ClCompile Include="task\week-1\task-4\w1t4.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="external\rbmap.h" />
-    <ClInclude Include="external\rbtree.h" />
     <ClInclude Include="task\hw-2\task-1\W2T1.hpp" />
     <ClInclude Include="task\hw-2\task-2\w2t2.hpp" />
     <ClInclude Include="task\hw-2\task-3\w2t3.hpp" />
@@ -238,6 +236,8 @@
     <ClInclude Include="task\hw-3\task-1\W3T1.hpp" />
     <ClInclude Include="task\hw-3\task-3\W3T3.h" />
     <ClInclude Include="task\hw-3\task-5\W3T5.h" />
+    <ClInclude Include="task\hw-4\task-2\btree.h" />
+    <ClInclude Include="task\hw-4\task-2\map.h" />
     <ClInclude Include="task\hw-4\task-2\W4T2.hpp" />
     <ClInclude Include="task\week-1\task-1\w1t1.h" />
     <ClInclude Include="task\week-1\task-2\W1T2.h" />

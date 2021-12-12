@@ -4,6 +4,11 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
+#include <deque>
+#include <list>
+
+#include "map.h"
+
 
 template<class T>
 struct Point
@@ -93,14 +98,57 @@ void emplace(std::vector<Rectangle<int>::Point>& storage, const int& x1, const i
 	storage.emplace_back(std::max(x1, x2), std::min(y1, y2), vside::bottom, hside::right);
 }
 
-
 template<class Tkey, class Tval>
-struct map
+struct origin_map
 {
 	using zmap = std::map<Tkey, Tval>;
 	using iterator = typename zmap::iterator;
 
 	zmap pttree;
+
+	inline iterator begin() noexcept
+	{
+		return pttree.begin();
+	}
+
+	inline iterator end() noexcept
+	{
+		return pttree.end();
+	}
+
+	inline iterator lower_bound(const Tkey& key)
+	{
+		// log(n)
+		return pttree.lower_bound(key);
+	}
+
+	inline iterator erase(iterator wh) noexcept
+	{
+		return pttree.erase(wh);
+	}
+
+	inline iterator emplace_hint(iterator wh, const Tkey& key, const Tval& val)
+	{
+		return pttree.emplace_hint(wh, key, val);
+	}
+
+	inline iterator emplace(const Tkey& key, const Tval& val)
+	{
+		return pttree.emplace(key, val).first;
+	}
+
+	inline size_t size() const
+	{
+		return pttree.size();
+	}
+};
+
+template<class Tkey, class Tval>
+struct btree_map
+{
+	using iterator = typename btree::map<Tkey, Tval>::iterator;
+
+	btree::map<Tkey, Tval> pttree;
 
 	inline iterator begin() noexcept
 	{
@@ -127,23 +175,118 @@ struct map
 		return pttree.emplace_hint(wh, key, val);
 	}
 
+	inline iterator emplace(const Tkey& key, const Tval& val)
+	{
+		return pttree.emplace(key, val).first;
+	}
+
 	inline size_t size() const
 	{
 		return pttree.size();
 	}
 };
 
+
+template<class Tkey, class Tval>
+struct map
+{
+	using iterator = typename std::deque<std::pair<Tkey, Tval>>::iterator;
+
+	struct less
+	{
+		static inline bool cmp(int rkey, std::pair<Tkey, Tval> lkey)
+		{
+			return lkey.first < rkey;
+		}
+
+		inline bool operator() (std::pair<Tkey, Tval> lkey, int rkey) const
+		{
+			return cmp(rkey, lkey);
+		}
+	};
+
+	std::deque<std::pair<Tkey, Tval>> ptunmap;
+
+	inline iterator begin() noexcept
+	{
+		return ptunmap.begin();
+	}
+
+	inline iterator end() noexcept
+	{
+		return ptunmap.end();
+	}
+
+	inline iterator lower_bound(const Tkey& key)
+	{
+		return std::lower_bound(ptunmap.begin(), ptunmap.end(), key, less());
+	}
+
+	inline iterator erase(iterator wh) noexcept
+	{
+		return ptunmap.erase(wh);
+	}
+
+	inline iterator emplace_hint(iterator wh, const Tkey& key, const Tval& val)
+	{
+		return ptunmap.insert(wh, std::make_pair(key, val));
+	}
+
+	inline iterator emplace(const Tkey& key, const Tval& val)
+	{
+		ptunmap.emplace_back(std::make_pair(key, val));
+		return ptunmap.begin();
+
+		//auto first = lower_bound(key);
+
+		//if ((first == ptunmap.begin()) && (ptunmap.begin() == ptunmap.end()))
+		//{
+		//	
+
+		//	return ptunmap.begin();
+		//}
+
+		//if ((!(first == ptunmap.end()) && !(less::cmp(key, *first))))
+		//{
+		//	return first;
+		//}
+		//else
+		//{
+		//	ptunmap.insert(first, std::make_pair(key, val));
+		//}
+
+		//
+
+		//std::sort(ptunmap.begin(), ptunmap.end());
+
+		//
+
+		//if ((!(first == ptunmap.end()) && !(less::cmp(key,*first))))
+		//{
+		//	return first;
+		//}
+
+		//return ptunmap.end();
+	}
+
+	inline size_t size() const
+	{
+		return ptunmap.size();
+	}
+};
+
+
 void W4T2::main(std::istream& input, std::ostream& output)
 {
 	int x1, y1, x2, y2;
 
-	map<int, Rectangle<int>::Point> pttree;
+	origin_map<int, Rectangle<int>::Point> pttree;
 	std::vector<Rectangle<int>::Point> ptstorage;
 
 	size_t count;
 	input >> count;
 
-	ptstorage.reserve(count * 3U);
+	ptstorage.reserve(3U * count);
 
 	for (size_t idx = 0; idx < count; ++idx)
 	{
@@ -158,6 +301,10 @@ void W4T2::main(std::istream& input, std::ostream& output)
 	
 	auto it_point = ptstorage.begin();
 
+	pttree.emplace(it_point->x, *it_point);
+
+	++it_point;
+
 	while(it_point != ptstorage.end())
 	{
 		const auto it_pair = pttree.lower_bound(it_point->x); // ~ log(n)
@@ -170,6 +317,7 @@ void W4T2::main(std::istream& input, std::ostream& output)
 
 			// уничтожаем парную точку
 			pttree.erase(it_pair);
+			continue;
 		}
 		else
 		{
@@ -180,28 +328,17 @@ void W4T2::main(std::istream& input, std::ostream& output)
 				continue;
 			}
 
-			if (pttree.size() > 0)
+			const auto prev = std::prev(it_pair);
+
+			// если новая точка левая и предыдущая точка в дереве тоже левая
+			if (it_point->features & prev->second.features & Rectangle<int>::Point::left)
 			{
-				//const auto it_new = pttree.emplace_hint(it_pair, point.x, point);
-				//const auto prev = std::prev(it_new);
+				// значит эта точка принадлежит "внутреннему" прямоугольнику (мы находимся в еще бОльшем прямоугольнике)
 
-				const auto prev = std::prev(it_pair);
-
-				// если новая точка левая и предыдущая точка в дереве тоже левая
-				if (it_point->features & prev->second.features & Rectangle<int>::Point::left)
-				{
-					// значит эта точка принадлежит "внутреннему" прямоугольнику (мы находимся в еще бОльшем прямоугольнике)
-					
-					// уничтожаем ее
-					//pttree.erase(it_new);
-
-					// дополнительно пропускаем следующую за ней точку
-					std::advance(it_point, 2);
-					continue;
-				}
+				// дополнительно пропускаем следующую за ней точку
+				std::advance(it_point, 2);
+				continue;
 			}
-
-			//pttree.insert(it_pair, *it_point);
 
 			// иначе нужно учитывать эту точку
 			pttree.emplace_hint(it_pair, it_point->x, *it_point);
@@ -220,8 +357,8 @@ void W4T2::test(Test* const reference)
 		reference->open(*this).input("3\n-3 -3 3 3\n-2 2 2 -2\n-1 -1 1 1\n").expect("1\n");
 		reference->open(*this).input("4\n0 0 3 3\n1 1 2 2\n100 100 101 101\n200 200 201 201\n").expect("3\n");
 
-		const int inner_size = 1000;
-		const int outer_size = 100;
+		const int inner_size = 10;
+		const int outer_size = 10000;
 		const int static_offset = 10 * inner_size;
 		const int reserved = static_offset + inner_size;
 		
