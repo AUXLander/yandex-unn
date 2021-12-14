@@ -2831,7 +2831,7 @@ public:
 						   const key_compare& comp = key_compare(),
 						   const allocator_type& alloc = allocator_type())
 		: super_type(comp, alloc) {
-		private_private_insert(b, e);
+		private_insert(b, e);
 	}
 
 	// Lookup routines.
@@ -2851,33 +2851,33 @@ public:
 	#endif
 
 	// Insertion routines.
-	std::pair<iterator, bool> private_private_insert(const value_type& x) {
+	std::pair<iterator, bool> private_insert(const value_type& x) {
 		return this->__tree.insert_unique(x);
 	}
 	template <typename P>
-	std::pair<iterator, bool> private_private_insert(P&& x) {
+	std::pair<iterator, bool> private_insert(P&& x) {
 		return this->__tree.insert_unique(std::forward<P>(x));
 	}
-	std::pair<iterator, bool> private_private_insert(value_type&& x) {
+	std::pair<iterator, bool> private_insert(value_type&& x) {
 		return this->__tree.insert_unique(std::move(x));
 	}
-	iterator private_private_insert(const_iterator hint, const value_type& x) {
+	iterator private_insert(const_iterator hint, const value_type& x) {
 		return this->__tree.insert_unique(hint, x);
 	}
 	template <typename P>
-	std::pair<iterator, bool> private_private_insert(const_iterator hint, P&& x) {
+	std::pair<iterator, bool> private_insert(const_iterator hint, P&& x) {
 		return this->__tree.insert_unique(hint, std::forward<P>(x));
 	}
-	iterator private_private_insert(const_iterator hint, value_type&& x) {
+	iterator private_insert(const_iterator hint, value_type&& x) {
 		return this->__tree.insert_unique(hint, std::move(x));
 	}
-	void private_private_insert(std::initializer_list<value_type> il) {
-		private_private_insert(il.begin(), il.end());
+	void private_insert(std::initializer_list<value_type> il) {
+		private_insert(il.begin(), il.end());
 	}
 	template <typename InputIterator>
-	void private_private_insert(InputIterator f, InputIterator l) {
+	void private_insert(InputIterator f, InputIterator l) {
 		for (const_iterator end = this->cend(); f != l; ++f) {
-			private_private_insert(end, *f);
+			private_insert(end, *f);
 		}
 	}
 
@@ -2939,7 +2939,7 @@ class btree_multi_container : public btree_container<Tree> {
 						  const key_compare& comp = key_compare(),
 						  const allocator_type& alloc = allocator_type())
 		: super_type(comp, alloc) {
-		private_private_insert(b, e);
+		private_insert(b, e);
 	}
 
 	// Lookup routines.
@@ -2959,34 +2959,34 @@ class btree_multi_container : public btree_container<Tree> {
 	#endif
 
 	// Insertion routines.
-	iterator private_private_insert(const value_type& x) {
+	iterator private_insert(const value_type& x) {
 		return this->__tree.insert_multi(x);
 	}
 	template <typename P>
-	iterator private_private_insert(P&& x) {
+	iterator private_insert(P&& x) {
 		return this->__tree.insert_multi(std::forward<P>(x));
 	}
-	iterator private_private_insert(value_type&& x) {
+	iterator private_insert(value_type&& x) {
 		return this->__tree.insert_multi(std::move(x));
 	}
-	iterator private_private_insert(const_iterator hint, const value_type& x) {
+	iterator private_insert(const_iterator hint, const value_type& x) {
 		return this->__tree.insert_multi(hint, x);
 	}
 	template <typename P>
-	iterator private_private_insert(const_iterator hint, P&& x) {
+	iterator private_insert(const_iterator hint, P&& x) {
 		return this->__tree.insert_multi(hint, std::forward<P>(x));
 	}
-	iterator private_private_insert(const_iterator hint, value_type&& x) {
+	iterator private_insert(const_iterator hint, value_type&& x) {
 		return this->__tree.insert_multi(hint, std::move(x));
 	}
 	template <typename InputIterator>
-	void private_private_insert(InputIterator f, InputIterator l) {
+	void private_insert(InputIterator f, InputIterator l) {
 		for (const_iterator end = this->cend(); f != l; ++f) {
-			private_private_insert(end, *f);
+			private_insert(end, *f);
 		}
 	}
-	void private_private_insert(std::initializer_list<value_type> il) {
-		private_private_insert(il.begin(), il.end());
+	void private_insert(std::initializer_list<value_type> il) {
+		private_insert(il.begin(), il.end());
 	}
 
 	template <typename... Args>

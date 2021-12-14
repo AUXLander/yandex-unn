@@ -332,7 +332,9 @@ void W4T2::main(std::istream& input, std::ostream& output)
 {
 	int x1, y1, x2, y2;
 
-	map<int, Rectangle<int>::Point> pttree;
+	binary::tree<int, Rectangle<int>::Point> pttree;
+	//map<int, Rectangle<int>::Point> pttree;
+
 	std::vector<Rectangle<int>::Point> ptstorage;
 
 	size_t count;
@@ -362,10 +364,12 @@ void W4T2::main(std::istream& input, std::ostream& output)
 		auto it_pair = pttree.lower_bound(it_point->x); // ~ log(n)
 
 		// существует парная точка
-		if ((it_pair != pttree.end()) && (it_pair->second.x == it_point->x))
+		if ((it_pair != pttree.end()) && ((*it_pair).val.x == it_point->x))
+		//if ((it_pair != pttree.end()) && (it_pair->second.x == it_point->x))
 		{
 			// если парная точка - левая, значит это верхний левый угол "внешнего" прямоугольника
-			outer_count += static_cast<int>((it_pair->second.features & Rectangle<int>::Point::left) > 0);
+			outer_count += static_cast<int>(((*it_pair).val.features & Rectangle<int>::Point::left) > 0);
+			//outer_count += static_cast<int>((it_pair->second.features & Rectangle<int>::Point::left) > 0);
 
 			// уничтожаем парную точку
 			pttree.erase(it_pair);
@@ -383,7 +387,8 @@ void W4T2::main(std::istream& input, std::ostream& output)
 			auto prev = std::prev(it_pair);
 
 			// если новая точка левая и предыдущая точка в дереве тоже левая
-			if (it_point->features & prev->second.features & Rectangle<int>::Point::left)
+			if (it_point->features & (*prev).val.features & Rectangle<int>::Point::left)
+			//if (it_point->features & prev->second.features & Rectangle<int>::Point::left)
 			{
 				// значит эта точка принадлежит "внутреннему" прямоугольнику (мы находимся в еще бОльшем прямоугольнике)
 
@@ -393,7 +398,8 @@ void W4T2::main(std::istream& input, std::ostream& output)
 			}
 
 			// иначе нужно учитывать эту точку
-			pttree.emplace_hint(it_pair, it_point->x, *it_point);
+			//pttree.emplace_hint(it_pair, it_point->x, *it_point);
+			pttree.emplace(it_point->x, *it_point);
 		}
 
 		std::advance(it_point, 1);
@@ -404,9 +410,15 @@ void W4T2::main(std::istream& input, std::ostream& output)
 
 void W4T2::test(Test* const reference)
 {
+	//std::map<int, int> mp;
 	//binary::tree<int, int> tr;
 
 	//tr.emplace(7, 7);
+	//mp.emplace(7, 7);
+
+	//auto t1 = tr.lower_bound(8);
+	//auto m1 = mp.lower_bound(8);
+
 	//tr.emplace(3, 3);
 	//tr.emplace(2, 2);
 	//tr.emplace(6, 6);
@@ -454,7 +466,7 @@ void W4T2::test(Test* const reference)
 
 	////auto res = tr.explore(4);
 
-	//return;
+//	return;
 
 
 	if (reference != nullptr)

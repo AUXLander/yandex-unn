@@ -253,7 +253,11 @@ private:
 
 				a->recalc_weight();
 				b->recalc_weight();
-				c->recalc_weight();
+
+				if (c)
+				{
+					c->recalc_weight();
+				}
 			}
 
 			// ѕравое вращение
@@ -286,6 +290,7 @@ private:
 				// Ѕольшое правое вращение
 				else
 				{
+
 					b->connect(binary::side::right, c->left);
 					a->connect(binary::side::left, c->right);
 
@@ -305,7 +310,11 @@ private:
 
 				a->recalc_weight();
 				b->recalc_weight();
-				c->recalc_weight();
+
+				if (c)
+				{
+					c->recalc_weight();
+				}
 			}
 
 			if (deep > 0)
@@ -401,7 +410,7 @@ private:
 		return nullptr;
 	}
 
-	inline node<Tkey, Tval>* private_private_insert(node<Tkey, Tval>* root, node<Tkey, Tval>* child)
+	inline node<Tkey, Tval>* private_insert(node<Tkey, Tval>* root, node<Tkey, Tval>* child)
 	{
 		auto [parent, side] = private_explore(root, child->key);
 
@@ -422,12 +431,12 @@ private:
 			return private_insert_hint(root, parent, binary::side::right, child);
 		}
 
-		return private_private_insert(root, child);
+		return private_insert(root, child);
 	}
 
-	inline node<Tkey, Tval>* private_private_insert(node<Tkey, Tval>* item)
+	inline node<Tkey, Tval>* private_insert(node<Tkey, Tval>* item)
 	{
-		return private_private_insert(m_root, item);
+		return private_insert(m_root, item);
 	}
 
 	inline node<Tkey, Tval>* private_emplace(const Tkey& key, const Tval& val)
@@ -438,12 +447,17 @@ private:
 		}
 		else
 		{
-			return private_private_insert(new node<Tkey, Tval>(key, val));
+			return private_insert(new node<Tkey, Tval>(key, val));
 		}
 	}
 
 	inline node<Tkey, Tval>* private_emplace_hint(node<Tkey, Tval>* parent, const Tkey& key, const Tval& val)
 	{
+		if (parent == nullptr)
+		{
+			return private_insert(m_root, new node<Tkey, Tval>(key, val));
+		}
+
 		return private_insert_hint(m_root, parent, new node<Tkey, Tval>(key, val));
 	}
 
@@ -517,6 +531,12 @@ private:
 			{
 				// найдем максимум в левом поддереве и помен€ем его с удал€емой вершиной, после чего вызовем ребалансировку
 				auto* max = private_find_max(root->left);
+
+				// на левой ветке все пусто
+				if (!max)
+				{
+					max = private_find_min(root->right);
+				}
 
 				root->swap(max);
 				std::swap(root, max);
@@ -645,7 +665,18 @@ public:
 
 	inline iterator lower_bound(const Tkey& key)
 	{
-		return iterator(private_lower_bound(key));
+		auto r1 = private_lower_bound(key);
+		auto r2 = private_explore(key);
+
+		if (r2.second == side::right)
+		{
+			return ++iterator(r2.first);
+		}
+		else
+		{
+			return iterator(r2.first);
+		}
+		//return iterator(private_lower_bound(key));
 	}
 
 	inline void erase(iterator wh) noexcept

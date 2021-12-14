@@ -118,7 +118,7 @@ public:
 		}
 	}
 
-	void private_private_insert(const T& new_key) 
+	void private_insert(const T& new_key) 
 	{
 		buffer.push_back(new_key);
 		rebuild(buffer.size() - 1, new_key);
@@ -154,7 +154,7 @@ public:
 	{
 		transaction_id = 0;
 		memory.emplace_back(1, size, true, 0);
-		memspace.private_private_insert(memory.begin());
+		memspace.private_insert(memory.begin());
 	}
 
 	~Manager()
@@ -187,7 +187,7 @@ public:
 
 		free_chunk->length -= size;
 		free_chunk->start += size;
-		memspace.private_private_insert(free_chunk);
+		memspace.private_insert(free_chunk);
 
 		return memalloc[transaction_id - 1]->start;
 	}
@@ -230,7 +230,7 @@ public:
 			}
 		}
 
-		memspace.private_private_insert(memalloc[id - 1]);
+		memspace.private_insert(memalloc[id - 1]);
 	}
 };
 
