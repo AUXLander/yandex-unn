@@ -64,6 +64,9 @@
     <Filter Include="Исходные файлы\hw-4\task-2">
       <UniqueIdentifier>{08c0a071-990f-420f-a6e0-85a75b1c4306}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\hw-4\task-3">
+      <UniqueIdentifier>{3823eb96-b6f3-4dd2-bc20-add3c2950344}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source.cpp">
@@ -107,6 +110,9 @@
     </ClCompile>
     <ClCompile Include="task\hw-4\task-2\W4T2.cpp">
       <Filter>Исходные файлы\hw-4\task-2</Filter>
+    </ClCompile>
+    <ClCompile Include="task\hw-4\task-3\W4T3.cpp">
+      <Filter>Исходные файлы\hw-4\task-3</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +165,15 @@
       <Filter>Исходные файлы\hw-4\task-2</Filter>
     </ClInclude>
     <ClInclude Include="task\hw-4\task-2\map.h">
+      <Filter>Исходные файлы\hw-4\task-2</Filter>
+    </ClInclude>
+    <ClInclude Include="task\hw-4\task-3\W4T3.hpp">
+      <Filter>Исходные файлы\hw-4\task-3</Filter>
+    </ClInclude>
+    <ClInclude Include="task\hw-4\task-2\avl-tree.h">
+      <Filter>Исходные файлы\hw-4\task-2</Filter>
+    </ClInclude>
+    <ClInclude Include="task\hw-4\task-2\mytree.h">
       <Filter>Исходные файлы\hw-4\task-2</Filter>
     </ClInclude>
   </ItemGroup>

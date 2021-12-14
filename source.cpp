@@ -24,6 +24,7 @@
 #include "task/hw-3/task-3/W3T3.h"
 #include "task/hw-3/task-1/W3T1.hpp"
 #include "task/hw-4/task-2/W4T2.hpp"
+#include "task/hw-4/task-3/W4T3.hpp"
 
 Test test(std::cin, std::cout);
 
@@ -39,6 +40,7 @@ Test test(std::cin, std::cout);
 //W3T1 t1(&test);
 
 W4T2 t2(&test);
+W4T3 t3(&test);
 
 
 int main(int argc, char* argv[])

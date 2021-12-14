@@ -7,7 +7,11 @@
 #include <deque>
 #include <list>
 
-#include "map.h"
+#include "mytree.h"
+
+//#include "avl-tree.h"
+
+//#include "map.h"
 
 
 template<class T>
@@ -143,48 +147,49 @@ struct origin_map
 	}
 };
 
-template<class Tkey, class Tval>
-struct btree_map
-{
-	using iterator = typename btree::map<Tkey, Tval>::iterator;
 
-	btree::map<Tkey, Tval> pttree;
-
-	inline iterator begin() noexcept
-	{
-		return pttree.begin();
-	}
-
-	inline iterator end() noexcept
-	{
-		return pttree.end();
-	}
-
-	inline iterator lower_bound(const Tkey& key)
-	{
-		return pttree.lower_bound(key);
-	}
-
-	inline iterator erase(iterator wh) noexcept
-	{
-		return pttree.erase(wh);
-	}
-
-	inline iterator emplace_hint(iterator wh, const Tkey& key, const Tval& val)
-	{
-		return pttree.emplace_hint(wh, key, val);
-	}
-
-	inline iterator emplace(const Tkey& key, const Tval& val)
-	{
-		return pttree.emplace(key, val).first;
-	}
-
-	inline size_t size() const
-	{
-		return pttree.size();
-	}
-};
+//template<class Tkey, class Tval>
+//struct btree_map
+//{
+//	using iterator = typename btree::map<Tkey, Tval>::iterator;
+//
+//	btree::map<Tkey, Tval> pttree;
+//
+//	inline iterator begin() noexcept
+//	{
+//		return pttree.begin();
+//	}
+//
+//	inline iterator end() noexcept
+//	{
+//		return pttree.end();
+//	}
+//
+//	inline iterator lower_bound(const Tkey& key)
+//	{
+//		return pttree.lower_bound(key);
+//	}
+//
+//	inline iterator erase(iterator wh) noexcept
+//	{
+//		return pttree.erase(wh);
+//	}
+//
+//	inline iterator emplace_hint(iterator wh, const Tkey& key, const Tval& val)
+//	{
+//		return pttree.emplace_hint(wh, key, val);
+//	}
+//
+//	inline iterator emplace(const Tkey& key, const Tval& val)
+//	{
+//		return pttree.emplace(key, val).first;
+//	}
+//
+//	inline size_t size() const
+//	{
+//		return pttree.size();
+//	}
+//};
 
 
 template<class Tkey, class Tval>
@@ -280,7 +285,7 @@ void W4T2::main(std::istream& input, std::ostream& output)
 {
 	int x1, y1, x2, y2;
 
-	origin_map<int, Rectangle<int>::Point> pttree;
+	map<int, Rectangle<int>::Point> pttree;
 	std::vector<Rectangle<int>::Point> ptstorage;
 
 	size_t count;
@@ -352,6 +357,22 @@ void W4T2::main(std::istream& input, std::ostream& output)
 
 void W4T2::test(Test* const reference)
 {
+	binary::tree<int, int> tr(7, 7);
+
+	tr.emplace(3, 3);
+	tr.emplace(2, 2);
+	tr.emplace(6, 6);
+	tr.emplace(5, 5);
+	tr.emplace(10, 10);
+	tr.emplace(8, 8);
+	tr.emplace(9, 9);
+	tr.emplace(11, 11);
+
+	auto res = tr.explore(4);
+
+	return;
+
+
 	if (reference != nullptr)
 	{
 		reference->open(*this).input("3\n-3 -3 3 3\n-2 2 2 -2\n-1 -1 1 1\n").expect("1\n");
