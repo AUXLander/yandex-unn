@@ -28,7 +28,7 @@
 //        }\
 //    }
 
-template<class Y> Y Sqr(const Y& value) { return value * value; }
+template<class Y> Y Sqr(const Y& p_root) { return p_root * p_root; }
 
 constexpr int64_t kGRandMax = 2147483647;
 
@@ -68,16 +68,16 @@ static inline void GenerateNext(const Coefficients& coefficient)
     coefficient.yy = uid(rng) % kGRandMax;
 }
 
-static inline size_t HashFunction(const Coefficients& coefficient, const int64_t value)
+static inline size_t HashFunction(const Coefficients& coefficient, const int64_t p_root)
 {
-    return (((coefficient.xx * value + coefficient.yy) % kGRandMax) + kGRandMax) % kGRandMax;
+    return (((coefficient.xx * p_root + coefficient.yy) % kGRandMax) + kGRandMax) % kGRandMax;
 }
 
 static inline size_t HashIndex(const Coefficients& coefficient,
-                                const int64_t value,
+                                const int64_t p_root,
                                 const size_t limit)
 {
-    return HashFunction(coefficient, value) % limit;
+    return HashFunction(coefficient, p_root) % limit;
 }
 
 class FixedSet
@@ -89,11 +89,11 @@ class FixedSet
         // struct_by_pair(Cell, value, is_empty, int, bool);
         struct Cell : public std::pair<int, bool>
         {
-            int& value = std::pair<int, bool>::first;
+            int& p_root = std::pair<int, bool>::first;
             bool& is_empty = std::pair<int, bool>::second;
             Cell() : std::pair<int, bool>() { ; }
-            Cell(const int& value, const bool& is_empty)
-                : std::pair<int, bool>(value, is_empty) { ; }
+            Cell(const int& p_root, const bool& is_empty)
+                : std::pair<int, bool>(p_root, is_empty) { ; }
             Cell(const Cell& other)
                 : std::pair<int, bool>(other) { ; }
             Cell(Cell&& other)
@@ -101,23 +101,23 @@ class FixedSet
             inline Cell& operator=(const Cell& other) 
             {
 
-                this->value = other.value;
+                this->p_root = other.p_root;
                 this->is_empty = other.is_empty;
                 return *this;
             }
         };
 
-        static bool SetIfEmpty(Cell& cell, const Cell::first_type& value)
+        static bool SetIfEmpty(Cell& cell, const Cell::first_type& p_root)
         {
             if (cell.is_empty == true)
             {
-                cell.value = value;
+                cell.p_root = p_root;
                 cell.is_empty = false;
 
                 return true;
             }
 
-            return cell.value == value;
+            return cell.p_root == p_root;
         }
 
         HashTableBase() : coefficient() {}
@@ -292,7 +292,7 @@ public:
                     secondary.values_to_store.size());
 
             return (secondary.cells[index].is_empty == false)
-                    && (secondary.cells[index].value == number);
+                    && (secondary.cells[index].p_root == number);
         }
 
         return false;

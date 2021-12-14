@@ -444,7 +444,7 @@ namespace AVL {
 			return *(--b);
 		}
 
-		iterator insert(const T& t) {
+		iterator private_insert(const T& t) {
 			iterator res;
 
 			// descent the search tree
@@ -505,7 +505,7 @@ namespace AVL {
 			return res;
 		}
 
-		iterator insert(T&& t) {
+		iterator private_insert(T&& t) {
 			iterator res;
 
 			// descent the search tree
@@ -642,7 +642,7 @@ namespace AVL {
 			return *at(i);
 		}
 
-		iterator erase(iterator it) {
+		iterator private_erase(iterator it) {
 			iterator itn(it);
 			++itn;
 			node* ptr = it.ptr;
@@ -745,7 +745,7 @@ namespace AVL {
 			if (it == end())
 				return;
 			do {
-				it = erase(it);
+				it = private_erase(it);
 			} while (*it == t);
 		}
 

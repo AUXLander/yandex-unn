@@ -7,7 +7,9 @@
 #include <deque>
 #include <list>
 
+#define private public
 #include "mytree.h"
+#undef private
 
 //#include "avl-tree.h"
 
@@ -146,6 +148,51 @@ struct origin_map
 		return pttree.size();
 	}
 };
+//
+//
+//template<class Tkey, class Tval>
+//struct avl_map
+//{
+//	using iterator = typename btree::map<Tkey, Tval>::iterator;
+//
+//	binary::tree<Tkey, Tval> pttree;
+//
+//	inline iterator begin() noexcept
+//	{
+//		return pttree.begin();
+//	}
+//
+//	inline iterator end() noexcept
+//	{
+//		return pttree.end();
+//	}
+//
+//	inline iterator lower_bound(const Tkey& key)
+//	{
+//		return pttree.lower_bound(key);
+//	}
+//
+//	inline iterator erase(iterator wh) noexcept
+//	{
+//		return pttree.erase(wh);
+//	}
+//
+//	inline iterator emplace_hint(iterator wh, const Tkey& key, const Tval& val)
+//	{
+//		return pttree.emplace_hint(wh, key, val);
+//	}
+//
+//	inline iterator emplace(const Tkey& key, const Tval& val)
+//	{
+//		return pttree.emplace(key, val).first;
+//	}
+//
+//	inline size_t size() const
+//	{
+//		return pttree.size();
+//	}
+//};
+
 
 
 //template<class Tkey, class Tval>
@@ -227,9 +274,9 @@ struct map
 		return std::lower_bound(ptunmap.begin(), ptunmap.end(), key, less());
 	}
 
-	inline iterator erase(iterator wh) noexcept
+	inline void erase(iterator wh) noexcept
 	{
-		return ptunmap.erase(wh);
+		ptunmap.erase(wh);
 	}
 
 	inline iterator emplace_hint(iterator wh, const Tkey& key, const Tval& val)
@@ -274,10 +321,10 @@ struct map
 		//return ptunmap.end();
 	}
 
-	inline size_t size() const
-	{
-		return ptunmap.size();
-	}
+	//inline size_t size() const
+	//{
+	//	return ptunmap.size();
+	//}
 };
 
 
@@ -312,7 +359,7 @@ void W4T2::main(std::istream& input, std::ostream& output)
 
 	while(it_point != ptstorage.end())
 	{
-		const auto it_pair = pttree.lower_bound(it_point->x); // ~ log(n)
+		auto it_pair = pttree.lower_bound(it_point->x); // ~ log(n)
 
 		// существует парная точка
 		if ((it_pair != pttree.end()) && (it_pair->second.x == it_point->x))
@@ -333,7 +380,7 @@ void W4T2::main(std::istream& input, std::ostream& output)
 				continue;
 			}
 
-			const auto prev = std::prev(it_pair);
+			auto prev = std::prev(it_pair);
 
 			// если новая точка левая и предыдущая точка в дереве тоже левая
 			if (it_point->features & prev->second.features & Rectangle<int>::Point::left)
@@ -357,32 +404,57 @@ void W4T2::main(std::istream& input, std::ostream& output)
 
 void W4T2::test(Test* const reference)
 {
-	binary::tree<int, int> tr(7, 7);
+	//binary::tree<int, int> tr;
 
-	tr.emplace(3, 3);
-	tr.emplace(2, 2);
-	tr.emplace(6, 6);
-	tr.emplace(5, 5);
-	tr.emplace(10, 10);
-	tr.emplace(8, 8);
-	tr.emplace(9, 9);
-	tr.emplace(12, 12);
+	//tr.emplace(7, 7);
+	//tr.emplace(3, 3);
+	//tr.emplace(2, 2);
+	//tr.emplace(6, 6);
+	//tr.emplace(5, 5);
+	//tr.emplace(10, 10);
+	//tr.emplace(8, 8);
+	//tr.emplace(9, 9);
+	//tr.emplace(12, 12);
 
-	auto [node, side] = tr.explore(9);
+	////auto [node, side] = tr.explore(9);
 
-	//if (side == binary::side::parent)
-	//{
-	//	tr.erase(6);
-	//}
+	////if (side == binary::side::parent)
+	////{
+	////	tr.erase(6);
+	////}
 
-	auto rs1 = tr.lower_bound(4);
-	auto rs2 = tr.lower_bound(8);
-	auto rs3 = tr.lower_bound(9);
-	auto rs4 = tr.lower_bound(11);
+	//auto rs1 = tr.lower_bound(4);
+	//auto rs2 = tr.lower_bound(8);
+	//auto rs3 = tr.lower_bound(9);
+	//auto rs4 = tr.lower_bound(11);
 
-	auto res = tr.explore(4);
+	//auto begin = tr.begin();
+	//auto end = tr.end();
 
-	return;
+	//++begin;
+	//++begin;
+	//++begin;
+	//++begin;
+
+	//++begin;
+	//++begin;
+	//++begin;
+	//++begin;
+	//++begin;
+
+	//--begin;
+	//--begin;
+	//--begin;
+	//--begin;
+
+	//--begin;
+	//--begin;
+	//--begin;
+	//--begin;
+
+	////auto res = tr.explore(4);
+
+	//return;
 
 
 	if (reference != nullptr)

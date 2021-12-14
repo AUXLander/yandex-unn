@@ -195,17 +195,17 @@ void W2T3::test(Test* const reference)
 
 				for (size_t mIdx = 0; mIdx < mSize; ++mIdx)
 				{
-					const int value = static_cast<int>(100 * static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX));
+					const int p_root = static_cast<int>(100 * static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX));
 
-					marr.emplace_back(value);
-					t_marr.emplace_back(value);
+					marr.emplace_back(p_root);
+					t_marr.emplace_back(p_root);
 				}
 
 				std::sort(t_marr.begin(), t_marr.end());
 
-				for (const auto value : t_marr)
+				for (const auto p_root : t_marr)
 				{
-					input += std::to_string(value) + ' ';
+					input += std::to_string(p_root) + ' ';
 				}
 			}
 

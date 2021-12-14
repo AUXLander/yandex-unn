@@ -9,7 +9,7 @@
 
 struct Node
 {
-	int value;
+	int p_root;
 
 	struct NodeCounter
 	{
@@ -31,7 +31,7 @@ struct Node
 	NodeCounter less;
 
 	Node(int v, size_t cm, Node * const pmore, size_t cl, Node* const pless)
-		: value(v), more(cm, pmore), less(cl, pless)
+		: p_root(v), more(cm, pmore), less(cl, pless)
 	{
 	}
 };
@@ -64,12 +64,12 @@ void W1T1::main(std::istream& input, std::ostream& output)
 
 			for (auto it = nodes.rbegin(); it != nodes.rend(); ++it)
 			{
-				if ((it->value >= top) && (it->less.count + 1 > loc_max_more.count))
+				if ((it->p_root >= top) && (it->less.count + 1 > loc_max_more.count))
 				{
 					loc_max_more.copy(it->less.count + 1, &(*it));
 				}
 
-				if ((it->value <= top) && (it->more.count + 1 > loc_max_less.count))
+				if ((it->p_root <= top) && (it->more.count + 1 > loc_max_less.count))
 				{
 					loc_max_less.copy(it->more.count + 1, &(*it));
 				}
@@ -98,7 +98,7 @@ void W1T1::main(std::istream& input, std::ostream& output)
 
 		while (node != nullptr)
 		{
-			outstring += ' ' + std::to_string(node->value);
+			outstring += ' ' + std::to_string(node->p_root);
 
 			node = direction ? node->less.pointer : node->more.pointer;
 

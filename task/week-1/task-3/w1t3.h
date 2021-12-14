@@ -15,7 +15,7 @@
 
 class W1T3 : public Task
 {
-	int clamp(const int min, const int value, const int max) { return std::min<int>(max, std::max(min, value)); };
+	int clamp(const int min, const int p_root, const int max) { return std::min<int>(max, std::max(min, p_root)); };
 
 	void test(Test* const reference) override final;
 	void main(std::istream& input, std::ostream& output) override final;

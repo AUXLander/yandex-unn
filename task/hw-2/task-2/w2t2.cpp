@@ -13,19 +13,19 @@ struct AssociatedValue : private std::pair<long long, long long>
 	static LambdaOperator less_value;
 	static LambdaOperator less_index;
 
-	long long& value = std::pair<long long, long long>::first;
+	long long& p_root = std::pair<long long, long long>::first;
 	long long& index = std::pair<long long, long long>::second;
 
 	AssociatedValue() : std::pair<long long, long long>() {}
-	AssociatedValue(const long long& value, const long long& index) : std::pair<long long, long long>(value, index) {}
+	AssociatedValue(const long long& p_root, const long long& index) : std::pair<long long, long long>(p_root, index) {}
 
 	AssociatedValue(AssociatedValue&& other) noexcept : std::pair<long long, long long>(std::move(other)) {}
 
-	explicit AssociatedValue(const AssociatedValue& other) : std::pair<long long, long long>(other.value, other.index) {}
+	explicit AssociatedValue(const AssociatedValue& other) : std::pair<long long, long long>(other.p_root, other.index) {}
 
 	AssociatedValue& operator= (const AssociatedValue& other)
 	{
-		value = other.value;
+		p_root = other.p_root;
 		index = other.index;
 
 		return *this;
@@ -33,13 +33,13 @@ struct AssociatedValue : private std::pair<long long, long long>
 
 	inline bool operator== (const AssociatedValue& other) const
 	{
-		return value == other.value;
+		return p_root == other.p_root;
 	}
 };
 
 AssociatedValue::LambdaOperator AssociatedValue::less_value = [](const AssociatedValue& lhs, const AssociatedValue& rhs)
 {
-	return lhs.value < rhs.value;
+	return lhs.p_root < rhs.p_root;
 };
 
 AssociatedValue::LambdaOperator AssociatedValue::less_index = [](const AssociatedValue& lhs, const AssociatedValue& rhs)
@@ -47,7 +47,7 @@ AssociatedValue::LambdaOperator AssociatedValue::less_index = [](const Associate
 	return lhs.index < rhs.index;
 };
 
-static long long leftBoundSearch(const AssociatedValue* pBegin, const AssociatedValue* pEnd, const long long offset, const long long value)
+static long long leftBoundSearch(const AssociatedValue* pBegin, const AssociatedValue* pEnd, const long long offset, const long long p_root)
 {
 	const long long length = static_cast<long long>(pEnd - pBegin);
 
@@ -58,7 +58,7 @@ static long long leftBoundSearch(const AssociatedValue* pBegin, const Associated
 	{
 		long long middle = (left + right) / 2;
 
-		if (pBegin[middle].value <= value)
+		if (pBegin[middle].p_root <= p_root)
 		{
 			left = middle;
 		}
@@ -68,7 +68,7 @@ static long long leftBoundSearch(const AssociatedValue* pBegin, const Associated
 		}
 	}
 
-	while ((left + 1 < length) && (pBegin[left + 1].value <= value))
+	while ((left + 1 < length) && (pBegin[left + 1].p_root <= p_root))
 	{
 		++left;
 	}
@@ -125,7 +125,7 @@ void W2T2::main(std::istream& input, std::ostream& output)
 
 	for (long long idx = 0; idx < length; ++idx)
 	{
-		pSums[reserved + idx] = pSums[idx] + pValues[idx].value;
+		pSums[reserved + idx] = pSums[idx] + pValues[idx].p_root;
 	}
 
 	long long max = pSums[0];
@@ -135,8 +135,8 @@ void W2T2::main(std::istream& input, std::ostream& output)
 
 	for (long long index = 0; index < length - 1; ++index)
 	{
-		const long long ai = pValues[index + 0U].value;
-		const long long aj = pValues[index + 1U].value;
+		const long long ai = pValues[index + 0U].p_root;
+		const long long aj = pValues[index + 1U].p_root;
 
 		const long long boundIdx = leftBoundSearch(pBeginValue, pEndValue, index, ai + aj);
 

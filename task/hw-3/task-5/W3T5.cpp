@@ -99,15 +99,15 @@ class signature_table
 			return index;
 		}
 
-		void add(const signature& value)
+		void add(const signature& p_root)
 		{
-			const auto index = hash_index(value);
+			const auto index = hash_index(p_root);
 
 			if (htable[index])
 			{
 				for (size_t idx = 0; idx < htable[index]->size(); ++idx)
 				{
-					if (htable[index]->data()[idx].first == value)
+					if (htable[index]->data()[idx].first == p_root)
 					{
 						++htable[index]->data()[idx].second;
 						return;
@@ -119,7 +119,7 @@ class signature_table
 				htable[index] = std::unique_ptr<bucket>(new bucket());
 			}
 
-			htable[index]->emplace_back(value, 1);
+			htable[index]->emplace_back(p_root, 1);
 
 			return;
 		}
@@ -160,11 +160,11 @@ public:
 		return index;
 	}
 
-	void add(const signature& value)
+	void add(const signature& p_root)
 	{
-		const auto index = hash_index(value);
+		const auto index = hash_index(p_root);
 
-		return htable[index].add(value);
+		return htable[index].add(p_root);
 	}
 
 	size_t not_empty_buckets()

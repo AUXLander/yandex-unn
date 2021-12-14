@@ -1,8 +1,7 @@
+#include <limits>
 #include <utility>
 #include <cstddef>
 #include <iostream>
-#include <limits>
-
 
 namespace binary
 {
@@ -144,15 +143,6 @@ class tree
 {
 	node<Tkey, Tval>* m_root;
 
-public:
-	tree(const Tkey& key, const Tval& val)
-		: m_root(new node<Tkey, Tval>(key, val))
-	{;}
-
-	explicit tree(node<Tkey, Tval>* root)
-		: m_root(root)
-	{;}
-
 	void free(node<Tkey, Tval>* root)
 	{
 		if (root != nullptr)
@@ -162,27 +152,49 @@ public:
 
 			auto* parent = root->parent;
 
-			parent->select(parent->what_side(root)) = nullptr;
+			if (parent)
+			{
+				parent->select(parent->what_side(root)) = nullptr;
+			}
 
 			delete root;
 		}
 	}
 
-	inline void print() const
+public:
+	tree()
+		: m_root(nullptr)
+	{;}
+
+	tree(const Tkey& key, const Tval& val)
+		: m_root(new node<Tkey, Tval>(key, val))
+	{;}
+
+private:
+	explicit tree(node<Tkey, Tval>* root)
+		: m_root(root)
+	{;}
+
+	~tree()
 	{
-		print(m_root);
+		free(m_root);
 	}
 
-	void print(node<Tkey, Tval>* root, const size_t level = 0) const
-	{
-		if (root != nullptr)
-		{
-			std::cout << "level " << level << ": " << root->key << std::endl;
+	//inline void print() const
+	//{
+	//	print(m_root);
+	//}
 
-			print(root->left, level + 1);
-			print(root->right, level + 1);
-		}
-	}
+	//void print(node<Tkey, Tval>* root, const size_t level = 0) const
+	//{
+	//	if (root != nullptr)
+	//	{
+	//		std::cout << "level " << level << ": " << root->key << std::endl;
+
+	//		print(root->left, level + 1);
+	//		print(root->right, level + 1);
+	//	}
+	//}
 
 	void recalc_rebalance(node<Tkey, Tval>* leaf, const int deep = 2)
 	{
@@ -303,7 +315,7 @@ public:
 		}
 	}
 
-	std::pair<node<Tkey, Tval>*, binary::side> explore(node<Tkey, Tval>* root, const Tkey& key)
+	std::pair<node<Tkey, Tval>*, binary::side> private_explore(node<Tkey, Tval>* root, const Tkey& key)
 	{
 		while (root)
 		{
@@ -338,16 +350,14 @@ public:
 		return std::make_pair(nullptr, binary::side::parent);
 	}
 
-	inline std::pair<node<Tkey, Tval>*, binary::side> explore(const Tkey& key)
+	inline std::pair<node<Tkey, Tval>*, binary::side> private_explore(const Tkey& key)
 	{
-		return explore(m_root, key);
+		return private_explore(m_root, key);
 	}
 
-	node<Tkey, Tval>* insert(node<Tkey, Tval>* root, node<Tkey, Tval>* child)
+	node<Tkey, Tval>* private_insert_hint(node<Tkey, Tval>* root, node<Tkey, Tval>* parent, binary::side side, node<Tkey, Tval>* child)
 	{
-		auto [parent, side] = explore(root, child->key);
-
-		bool need_recalc_weight = parent->connect_child(side, child);
+		const bool need_recalc_weight = parent->connect_child(side, child);
 
 		if (need_recalc_weight)
 		{
@@ -391,17 +401,53 @@ public:
 		return nullptr;
 	}
 
-	inline node<Tkey, Tval>* insert(node<Tkey, Tval>* item)
+	inline node<Tkey, Tval>* private_private_insert(node<Tkey, Tval>* root, node<Tkey, Tval>* child)
 	{
-		return insert(m_root, item);
+		auto [parent, side] = private_explore(root, child->key);
+
+		return private_insert_hint(root, parent, side, child);
 	}
 
-	inline void emplace(const Tkey& key, const Tval& val)
+	node<Tkey, Tval>* private_insert_hint(node<Tkey, Tval>* root, node<Tkey, Tval>* parent, node<Tkey, Tval>* child)
 	{
-		insert(new node<Tkey, Tval>(key, val));
+		binary::side side = binary::side::parent;
+
+		if (!parent->left)
+		{
+			return private_insert_hint(root, parent, binary::side::left, child);
+		}
+		
+		if (!parent->right)
+		{
+			return private_insert_hint(root, parent, binary::side::right, child);
+		}
+
+		return private_private_insert(root, child);
 	}
 
-	node<Tkey, Tval>* bound(node<Tkey, Tval>* root, const binary::side side, const Tkey& key) const
+	inline node<Tkey, Tval>* private_private_insert(node<Tkey, Tval>* item)
+	{
+		return private_private_insert(m_root, item);
+	}
+
+	inline node<Tkey, Tval>* private_emplace(const Tkey& key, const Tval& val)
+	{
+		if (!m_root)
+		{
+			return m_root = new node<Tkey, Tval>(key, val);
+		}
+		else
+		{
+			return private_private_insert(new node<Tkey, Tval>(key, val));
+		}
+	}
+
+	inline node<Tkey, Tval>* private_emplace_hint(node<Tkey, Tval>* parent, const Tkey& key, const Tval& val)
+	{
+		return private_insert_hint(m_root, parent, new node<Tkey, Tval>(key, val));
+	}
+
+	node<Tkey, Tval>* private_bound(node<Tkey, Tval>* root, const binary::side side, const Tkey& key) const
 	{
 		while (root && root->select(side, root->key < key))
 		{
@@ -420,27 +466,27 @@ public:
 		return root;
 	}
 
-	inline node<Tkey, Tval>* lower_bound(node<Tkey, Tval>* root, const Tkey& key) const
+	inline node<Tkey, Tval>* private_lower_bound(node<Tkey, Tval>* root, const Tkey& key) const
 	{
-		return bound(root, binary::side::left, key);
+		return private_bound(root, binary::side::left, key);
 	}
 
-	inline node<Tkey, Tval>* lower_bound(const Tkey& key) const
+	inline node<Tkey, Tval>* private_lower_bound(const Tkey& key) const
 	{
-		return bound(m_root, binary::side::left, key);
+		return private_bound(m_root, binary::side::left, key);
 	}
 
-	inline node<Tkey, Tval>* upper_bound(node<Tkey, Tval>* root, const Tkey& key) const
+	inline node<Tkey, Tval>* private_upper_bound(node<Tkey, Tval>* root, const Tkey& key) const
 	{
-		return bound(root, binary::side::right, key);
+		return private_bound(root, binary::side::right, key);
 	}
 
-	inline node<Tkey, Tval>* upper_bound(const Tkey& key) const
+	inline node<Tkey, Tval>* private_upper_bound(const Tkey& key) const
 	{
-		return bound(m_root, binary::side::right, key);
+		return private_bound(m_root, binary::side::right, key);
 	}
 
-	node<Tkey, Tval>* lift_down(node<Tkey, Tval>* root, const binary::side side, size_t deep) const
+	static node<Tkey, Tval>* private_lift_down(node<Tkey, Tval>* root, const binary::side side, size_t deep)
 	{
 		while (root && root->select(side) && (deep > 0))
 		{
@@ -451,26 +497,26 @@ public:
 		return root;
 	}
 
-	node<Tkey, Tval>* find_max(node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max()) const
+	static node<Tkey, Tval>* private_find_max(node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max())
 	{
-		return lift_down(root, binary::side::right, deep);
+		return private_lift_down(root, binary::side::right, deep);
 	}
 
-	node<Tkey, Tval>* find_min(const node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max()) const
+	static node<Tkey, Tval>* private_find_min(node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max())
 	{
-		return lift_down(root, binary::side::left, deep);
+		return private_lift_down(root, binary::side::left, deep);
 	}
 
-	void erase(node<Tkey, Tval>* search_root, const Tkey& key)
+	void private_erase(node<Tkey, Tval>* search_root, const Tkey& key)
 	{
-		auto [root, side] = explore(search_root, key);
+		auto [root, side] = private_explore(search_root, key);
 
 		if (side == binary::side::parent)
 		{
 			if (root->is_node())
 			{
 				// найдем максимум в левом поддереве и поменяем его с удаляемой вершиной, после чего вызовем ребалансировку
-				auto* max = find_max(root->left);
+				auto* max = private_find_max(root->left);
 
 				root->swap(max);
 				std::swap(root, max);
@@ -484,9 +530,137 @@ public:
 		}
 	}
 
-	inline void erase(const Tkey& key)
+	inline void private_erase(const Tkey& key)
 	{
-		erase(m_root, key);
+		private_erase(m_root, key);
+	}
+
+	template <class Iter>
+	class NodeTreeIterator
+	{
+		friend class tree<Tkey, Tval>;
+	public:
+		using iterator_type		= Iter;
+		using iterator_category = std::bidirectional_iterator_tag;
+		using value_type		= iterator_type;
+		using reference			= iterator_type&;
+		using pointer			= iterator_type*;
+		using difference_type	= ptrdiff_t;
+
+		iterator_type* p_root;
+		//iterator_type* p_next;
+		iterator_type* p_previous;
+	private:
+		NodeTreeIterator(Iter* root, Iter* previous = nullptr)
+			: p_root(root), p_previous(previous) // , p_next(nullptr)
+		{;}
+	public:
+		NodeTreeIterator(const NodeTreeIterator& other)
+			: p_root(other.p_root), p_previous(other.p_previous) // , p_next(other.p_next)
+		{;}
+
+		inline bool operator!=(const NodeTreeIterator& other) const
+		{
+			return p_root != other.p_root;
+		}
+
+		inline bool operator==(const NodeTreeIterator& other) const
+		{
+			return p_root == other.p_root;
+		}
+
+		inline typename reference operator*() const
+		{
+			return *p_root;
+		}
+
+		NodeTreeIterator& operator++()
+		{
+			if (p_root)
+			{
+				p_previous = p_root;
+
+				if (p_root->right)
+				{
+					p_root = private_find_min(p_root->right);
+				}
+				else
+				{
+					const Tkey key = p_root->key;
+
+					while (p_root && (p_root->key <= key))
+					{						
+						p_root = p_root->parent ? p_root->parent : nullptr; // end()
+					}
+				}
+			}
+
+			return *this;
+		}
+
+		NodeTreeIterator& operator--()
+		{
+			if (p_root)
+			{
+				//p_next = p_root;
+
+				if (p_root->left)
+				{
+					p_root = private_find_max(p_root->left);
+				}
+				else
+				{
+					const Tkey key = p_root->key;
+
+					while (p_root && (p_root->key >= key))
+					{
+						p_root = p_root->parent ? p_root->parent : nullptr; // end()
+					}
+				}
+
+				return *this;
+			}
+			else if (p_previous)
+			{
+				p_root = p_previous;
+				p_previous = nullptr;
+			}
+
+			return *this;
+		}
+	};
+
+	using iterator = typename NodeTreeIterator<node<Tkey, Tval>>;
+
+public:
+	inline iterator begin() const
+	{
+		return iterator(private_find_min(m_root));
+	}
+
+	inline iterator end() const
+	{
+		return iterator(nullptr, private_find_max(m_root));
+	}
+
+	inline iterator lower_bound(const Tkey& key)
+	{
+		return iterator(private_lower_bound(key));
+	}
+
+	inline void erase(iterator wh) noexcept
+	{
+		this->private_erase(wh.p_root->key);
+	}
+
+	inline iterator emplace_hint(iterator wh, const Tkey& key, const Tval& val)
+	{
+		return iterator(this->private_emplace_hint(wh.p_root, key, val));
+	}
+
+	inline iterator emplace(const Tkey& key, const Tval& val)
+	{
+		return iterator(this->private_emplace(key, val));
 	}
 };
 

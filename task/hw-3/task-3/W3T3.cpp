@@ -109,7 +109,7 @@ public:
 		return buffer.empty();
 	}
 
-	void erase(const int index)
+	void private_erase(const int index)
 	{
 		if (buffer.empty() == false)
 		{
@@ -118,7 +118,7 @@ public:
 		}
 	}
 
-	void insert(const T& new_key) 
+	void private_private_insert(const T& new_key) 
 	{
 		buffer.push_back(new_key);
 		rebuild(buffer.size() - 1, new_key);
@@ -154,7 +154,7 @@ public:
 	{
 		transaction_id = 0;
 		memory.emplace_back(1, size, true, 0);
-		memspace.insert(memory.begin());
+		memspace.private_private_insert(memory.begin());
 	}
 
 	~Manager()
@@ -187,7 +187,7 @@ public:
 
 		free_chunk->length -= size;
 		free_chunk->start += size;
-		memspace.insert(free_chunk);
+		memspace.private_private_insert(free_chunk);
 
 		return memalloc[transaction_id - 1]->start;
 	}
@@ -212,7 +212,7 @@ public:
 			{
 				memalloc[id - 1]->length += prev_chunk->length;
 				memalloc[id - 1]->start = prev_chunk->start;
-				memspace.erase(prev_chunk->index);
+				memspace.private_erase(prev_chunk->index);
 				memory.erase(prev_chunk);
 			}
 		}
@@ -225,12 +225,12 @@ public:
 			if (next_chunk->empty)
 			{
 				memalloc[id - 1]->length += next_chunk->length;
-				memspace.erase(next_chunk->index);
+				memspace.private_erase(next_chunk->index);
 				memory.erase(next_chunk);
 			}
 		}
 
-		memspace.insert(memalloc[id - 1]);
+		memspace.private_private_insert(memalloc[id - 1]);
 	}
 };
 

@@ -32,9 +32,9 @@ void testNumbers(const FixedSet& fixed_set, const std::vector<int>& numbers_to_t
 
 void writeOutput(std::ostream& output, const std::vector<bool>& output_vector)
 {
-    for (const bool value : output_vector)
+    for (const bool p_root : output_vector)
     {
-        output << (value ? "Yes" : "No") << '\n';
+        output << (p_root ? "Yes" : "No") << '\n';
     }
 }
 

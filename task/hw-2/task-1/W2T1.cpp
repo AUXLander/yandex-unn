@@ -20,14 +20,14 @@ struct Frame
         return d.front().first;
     }
 
-    void push_back(const int value)
+    void push_back(const int p_root)
     {
-        while (!d.empty() && d.back().first <= value)
+        while (!d.empty() && d.back().first <= p_root)
         {
             d.pop_back();
         }
 
-        d.emplace_back(value, rIdx);
+        d.emplace_back(p_root, rIdx);
 
         ++rIdx;
     }
