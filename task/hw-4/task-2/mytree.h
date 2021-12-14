@@ -1,6 +1,7 @@
 #include <utility>
 #include <cstddef>
 #include <iostream>
+#include <limits>
 
 
 namespace binary
@@ -27,34 +28,84 @@ struct node
 		: key(key), val(val), left{ nullptr }, right{ nullptr }, parent{ nullptr }, m_weight(0)
 	{;}
 
-	bool connect(const binary::side side, node<Tkey, Tval>* item)
+	binary::side what_side(node<Tkey, Tval>* child) const
+	{
+		if (this->left == child)
+		{
+			return binary::side::left;
+		}
+		else if (this->right == child)
+		{
+			return binary::side::right;
+		}
+		else if (this == child)
+		{
+			return binary::side::parent;
+		}
+
+		throw "shit happend";
+
+		return binary::side::parent;
+	}
+
+	node<Tkey, Tval>*& select(const binary::side side)
 	{
 		switch (side)
 		{
-			case binary::side::left:
-			{
-				this->left = item;
-				break;
-			}
-
-			case binary::side::right:
-			{
-				this->right = item;
-				break;
-			}
-
-			case binary::side::parent:
-			{
-				return false;
-			}
+			case binary::side::left:   return left;
+			case binary::side::right:  return right;
+			case binary::side::parent: return parent;
 		}
+	}
+
+	node<Tkey, Tval>*& select(const binary::side side, const bool inverse)
+	{
+		switch (side)
+		{
+			case binary::side::left:   return inverse ? right : left;
+			case binary::side::right:  return inverse ? left : right;
+			case binary::side::parent: return parent;
+		}
+	}
+
+	void connect(const binary::side side, node<Tkey, Tval>* item)
+	{
+		select(side) = item;
 
 		if (item)
 		{
 			item->parent = this;
 		}
+	}
 
-		return true;
+	bool connect_child(const binary::side side, node<Tkey, Tval>* item)
+	{
+		if (side != binary::side::parent)
+		{
+			connect(side, item);
+
+			return true;
+		}
+		
+		return false;
+	}
+
+	void swap(node<Tkey, Tval>* other)
+	{
+		std::swap(this->key, other->key);
+		std::swap(this->val, other->val);
+
+		std::swap(this->m_weight, other->m_weight);
+	}
+
+	inline bool is_node() const
+	{
+		return left || right;
+	}
+
+	inline bool is_leaf() const
+	{
+		return !left && !right;
 	}
 
 	inline static size_t get_weight(const node<Tkey, Tval>* root, const size_t upweight = 0)
@@ -72,28 +123,15 @@ struct node
 		return std::make_pair<int, int>(get_weight(left), get_weight(right));
 	}
 
-	//inline bool is_need_rebalance() const
-	//{
-	//	const auto [lweight, rweight] = get_balances();
-
-	//	return std::abs(lweight - rweight) > 1;
-	//}
-
 	bool recalc_weight()
 	{
 		const size_t weight = get_weight(this->left, 1) + get_weight(this->right, 1);
 
-		if (weight != m_weight)
-		{
-			m_weight = weight;
+		const bool result = (weight != m_weight);
 
-			return true;
-		}
-		else
-		{
-			// m_weight = weight;
-			return false;
-		}
+		m_weight = weight;
+
+		return result;
 	}
 
 private:
@@ -122,6 +160,10 @@ public:
 			free(root->left);
 			free(root->right);
 
+			auto* parent = root->parent;
+
+			parent->select(parent->what_side(root)) = nullptr;
+
 			delete root;
 		}
 	}
@@ -148,10 +190,7 @@ public:
 		{
 			// считаем, что дл€ всех нижних уровней все сбалансировано
 			const bool need_recalc_parent = leaf->recalc_weight();
-
 			const auto [lweight, rweight] = leaf->get_balances();
-
-			//const bool need_rebalance = std::abs(lweight - rweight) > 1;
 
 			// Ћевое вращение
 			if (rweight - lweight > 1)
@@ -159,43 +198,30 @@ public:
 				const auto [lrweight, rrweight] = leaf->right->get_balances();
 
 				auto* parent = leaf->parent;
-				binary::side side = binary::side::parent;
 
-				if (parent)
-				{
-					side = (parent->left == leaf) ? binary::side::left : binary::side::right;
-				}
+				auto* a = leaf;
+				auto* b = a->right;
+				auto* c = b->left;
 
 				// ћалое левое вращение
 				if (lrweight <= rrweight)
 				{
-					auto* a = leaf;
-					auto* b = a->right;
-					auto* c = b->left;
-
 					a->connect(binary::side::right, c);
 					b->connect(binary::side::left, a);
 
 					if (parent)
 					{
-						parent->connect(side, b);
+						parent->connect(parent->what_side(leaf), b);
 					}
 					else
 					{
 						m_root = b;
 						m_root->parent = nullptr;
 					}
-
-					a->recalc_weight();
-					b->recalc_weight();
 				}
 				// Ѕольшое левое вращение
 				else
 				{
-					auto* a = leaf;
-					auto* b = a->right;
-					auto* c = b->left;
-
 					a->connect(binary::side::right, c->left);
 					b->connect(binary::side::left, c->right);
 
@@ -204,18 +230,18 @@ public:
 
 					if (parent)
 					{
-						parent->connect(side, c);
+						parent->connect(parent->what_side(leaf), c);
 					}
 					else
 					{
 						m_root = c;
 						m_root->parent = nullptr;
 					}
-
-					a->recalc_weight();
-					b->recalc_weight();
-					c->recalc_weight();
 				}
+
+				a->recalc_weight();
+				b->recalc_weight();
+				c->recalc_weight();
 			}
 
 			// ѕравое вращение
@@ -224,43 +250,30 @@ public:
 				const auto [llweight, rlweight] = leaf->left->get_balances();
 
 				auto* parent = leaf->parent;
-				binary::side side = binary::side::parent;
 
-				if (parent)
-				{
-					side = (parent->left == leaf) ? binary::side::left : binary::side::right;
-				}
+				auto* a = leaf;
+				auto* b = a->left;
+				auto* c = b->right;
 
 				// ћалое правое вращение
 				if (rlweight <= llweight)
 				{
-					auto* a = leaf;
-					auto* b = a->left;
-					auto* c = b->right;
-
 					a->connect(binary::side::left, c);
 					b->connect(binary::side::right, a);
 
 					if (parent)
 					{
-						parent->connect(side, b);
+						parent->connect(parent->what_side(leaf), b);
 					}
 					else
 					{
 						m_root = b;
 						m_root->parent = nullptr;
 					}
-
-					a->recalc_weight();
-					b->recalc_weight();
 				}
 				// Ѕольшое правое вращение
 				else
 				{
-					auto* a = leaf;
-					auto* b = a->left;
-					auto* c = b->right;
-
 					b->connect(binary::side::right, c->left);
 					a->connect(binary::side::left, c->right);
 
@@ -269,18 +282,18 @@ public:
 
 					if (parent)
 					{
-						parent->connect(side, c);
+						parent->connect(parent->what_side(leaf), c);
 					}
 					else
 					{
 						m_root = c;
 						m_root->parent = nullptr;
 					}
-
-					a->recalc_weight();
-					b->recalc_weight();
-					c->recalc_weight();
 				}
+
+				a->recalc_weight();
+				b->recalc_weight();
+				c->recalc_weight();
 			}
 
 			if (deep > 0)
@@ -292,9 +305,7 @@ public:
 
 	std::pair<node<Tkey, Tval>*, binary::side> explore(node<Tkey, Tval>* root, const Tkey& key)
 	{
-		root = root;
-
-		while (true)
+		while (root)
 		{
 			if (root->key == key)
 			{
@@ -321,6 +332,10 @@ public:
 				return std::make_pair(root, binary::side::right);
 			}
 		}
+		
+		throw "shit happend";
+
+		return std::make_pair(nullptr, binary::side::parent);
 	}
 
 	inline std::pair<node<Tkey, Tval>*, binary::side> explore(const Tkey& key)
@@ -332,7 +347,7 @@ public:
 	{
 		auto [parent, side] = explore(root, child->key);
 
-		bool need_recalc_weight = parent->connect(side, child);
+		bool need_recalc_weight = parent->connect_child(side, child);
 
 		if (need_recalc_weight)
 		{
@@ -341,12 +356,23 @@ public:
 
 		switch (side)
 		{
+			// такой ключ уже вставлен в дерево!
 			case binary::side::parent:
 			{
-				parent->val = child->val;
+				// но если вставл€ем ноду есть еще потомки, 
+				if (child->is_node())
+				{
+					// мен€ем значение
+					parent->val = child->val;
 
-				// все ноды child должны быть распределены как-то
-				throw "wtf";
+					// и нужно как-то распределить потомков этой ноды!
+					throw "shit happend";
+				}
+				else
+				{
+					// значит нужно просто помен€ть значение
+					parent->val = child->val;
+				}
 
 				return parent;
 			}
@@ -375,21 +401,86 @@ public:
 		insert(new node<Tkey, Tval>(key, val));
 	}
 
-	void erase(node<Tkey, Tval>* root, const Tkey& key)
+	node<Tkey, Tval>* bound(node<Tkey, Tval>* root, const binary::side side, const Tkey& key) const
 	{
-		auto [parent, side] = explore(root, key);
+		while (root && root->select(side, root->key < key))
+		{
+			root = root->select(side, root->key < key);
+
+			if ((root->key > key) && root->is_leaf())
+			{
+				return root->parent;
+			}
+			else if (root->key == key)
+			{
+				return root;
+			}
+		}
+
+		return root;
+	}
+
+	inline node<Tkey, Tval>* lower_bound(node<Tkey, Tval>* root, const Tkey& key) const
+	{
+		return bound(root, binary::side::left, key);
+	}
+
+	inline node<Tkey, Tval>* lower_bound(const Tkey& key) const
+	{
+		return bound(m_root, binary::side::left, key);
+	}
+
+	inline node<Tkey, Tval>* upper_bound(node<Tkey, Tval>* root, const Tkey& key) const
+	{
+		return bound(root, binary::side::right, key);
+	}
+
+	inline node<Tkey, Tval>* upper_bound(const Tkey& key) const
+	{
+		return bound(m_root, binary::side::right, key);
+	}
+
+	node<Tkey, Tval>* lift_down(node<Tkey, Tval>* root, const binary::side side, size_t deep) const
+	{
+		while (root && root->select(side) && (deep > 0))
+		{
+			root = root->select(side);
+			--deep;
+		}
+
+		return root;
+	}
+
+	node<Tkey, Tval>* find_max(node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max()) const
+	{
+		return lift_down(root, binary::side::right, deep);
+	}
+
+	node<Tkey, Tval>* find_min(const node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max()) const
+	{
+		return lift_down(root, binary::side::left, deep);
+	}
+
+	void erase(node<Tkey, Tval>* search_root, const Tkey& key)
+	{
+		auto [root, side] = explore(search_root, key);
 
 		if (side == binary::side::parent)
 		{
-			if (parent->left || parent->right)
+			if (root->is_node())
 			{
-				// нужно отсоединить найденную ноду и перезагрузить все нижние ноды в дерево
-				throw "wtf";
+				// найдем максимум в левом поддереве и помен€ем его с удал€емой вершиной, после чего вызовем ребалансировку
+				auto* max = find_max(root->left);
+
+				root->swap(max);
+				std::swap(root, max);
 			}
-			else
-			{
-				free(parent);
-			}
+			
+			auto* parent = root->parent;
+
+			free(root);
+
+			recalc_rebalance(parent);
 		}
 	}
 

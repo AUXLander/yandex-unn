@@ -366,7 +366,19 @@ void W4T2::test(Test* const reference)
 	tr.emplace(10, 10);
 	tr.emplace(8, 8);
 	tr.emplace(9, 9);
-	tr.emplace(11, 11);
+	tr.emplace(12, 12);
+
+	auto [node, side] = tr.explore(9);
+
+	//if (side == binary::side::parent)
+	//{
+	//	tr.erase(6);
+	//}
+
+	auto rs1 = tr.lower_bound(4);
+	auto rs2 = tr.lower_bound(8);
+	auto rs3 = tr.lower_bound(9);
+	auto rs4 = tr.lower_bound(11);
 
 	auto res = tr.explore(4);
 
