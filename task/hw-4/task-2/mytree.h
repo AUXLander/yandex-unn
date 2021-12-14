@@ -29,32 +29,37 @@ struct node
 
 	bool connect(const binary::side side, node<Tkey, Tval>* item)
 	{
-		if (item != nullptr)
+		switch (side)
 		{
-			switch (side)
+			case binary::side::left:
 			{
-				case binary::side::left:
-				{
-					this->left = item;
-					item->parent = this;
-					return true;
-				}
+				this->left = item;
+				break;
+			}
 
-				case binary::side::right:
-				{
-					this->right = item;
-					item->parent = this;
-					return true;
-				}
+			case binary::side::right:
+			{
+				this->right = item;
+				break;
+			}
+
+			case binary::side::parent:
+			{
+				return false;
 			}
 		}
 
-		return false;
+		if (item)
+		{
+			item->parent = this;
+		}
+
+		return true;
 	}
 
-	inline static size_t get_weight(const node<Tkey, Tval>* root)
+	inline static size_t get_weight(const node<Tkey, Tval>* root, const size_t upweight = 0)
 	{
-		return root ? root->get_weight() : 0;
+		return root ? root->get_weight() + upweight : 0;
 	}
 
 	inline size_t get_weight() const
@@ -62,17 +67,21 @@ struct node
 		return m_weight;
 	}
 
-	inline bool is_need_rebalance() const
+	inline std::pair<int, int> get_balances() const
 	{
-		const int lweight = static_cast<int>(get_weight(left));
-		const int rweight = static_cast<int>(get_weight(right));
-
-		return std::abs(lweight - rweight) > 1;
+		return std::make_pair<int, int>(get_weight(left), get_weight(right));
 	}
+
+	//inline bool is_need_rebalance() const
+	//{
+	//	const auto [lweight, rweight] = get_balances();
+
+	//	return std::abs(lweight - rweight) > 1;
+	//}
 
 	bool recalc_weight()
 	{
-		const size_t weight = get_weight(this->left) + get_weight(this->right);
+		const size_t weight = get_weight(this->left, 1) + get_weight(this->right, 1);
 
 		if (weight != m_weight)
 		{
@@ -133,22 +142,150 @@ public:
 		}
 	}
 
-	void recalc_rebalance(node<Tkey, Tval>* leaf)
+	void recalc_rebalance(node<Tkey, Tval>* leaf, const int deep = 2)
 	{
 		if (leaf != nullptr)
 		{
 			// считаем, что для всех нижних уровней все сбалансировано
 			const bool need_recalc_parent = leaf->recalc_weight();
-			const bool need_rebalance = leaf->is_need_rebalance();
 
-			if (need_rebalance)
+			const auto [lweight, rweight] = leaf->get_balances();
+
+			//const bool need_rebalance = std::abs(lweight - rweight) > 1;
+
+			// Левое вращение
+			if (rweight - lweight > 1)
 			{
+				const auto [lrweight, rrweight] = leaf->right->get_balances();
 
+				auto* parent = leaf->parent;
+				binary::side side = binary::side::parent;
+
+				if (parent)
+				{
+					side = (parent->left == leaf) ? binary::side::left : binary::side::right;
+				}
+
+				// Малое левое вращение
+				if (lrweight <= rrweight)
+				{
+					auto* a = leaf;
+					auto* b = a->right;
+					auto* c = b->left;
+
+					a->connect(binary::side::right, c);
+					b->connect(binary::side::left, a);
+
+					if (parent)
+					{
+						parent->connect(side, b);
+					}
+					else
+					{
+						m_root = b;
+						m_root->parent = nullptr;
+					}
+
+					a->recalc_weight();
+					b->recalc_weight();
+				}
+				// Большое левое вращение
+				else
+				{
+					auto* a = leaf;
+					auto* b = a->right;
+					auto* c = b->left;
+
+					a->connect(binary::side::right, c->left);
+					b->connect(binary::side::left, c->right);
+
+					c->connect(binary::side::left, a);
+					c->connect(binary::side::right, b);
+
+					if (parent)
+					{
+						parent->connect(side, c);
+					}
+					else
+					{
+						m_root = c;
+						m_root->parent = nullptr;
+					}
+
+					a->recalc_weight();
+					b->recalc_weight();
+					c->recalc_weight();
+				}
 			}
 
-			if (need_recalc_parent)
+			// Правое вращение
+			if (lweight - rweight > 1)
 			{
-				return recalc_rebalance(leaf->parent);
+				const auto [llweight, rlweight] = leaf->left->get_balances();
+
+				auto* parent = leaf->parent;
+				binary::side side = binary::side::parent;
+
+				if (parent)
+				{
+					side = (parent->left == leaf) ? binary::side::left : binary::side::right;
+				}
+
+				// Малое правое вращение
+				if (rlweight <= llweight)
+				{
+					auto* a = leaf;
+					auto* b = a->left;
+					auto* c = b->right;
+
+					a->connect(binary::side::left, c);
+					b->connect(binary::side::right, a);
+
+					if (parent)
+					{
+						parent->connect(side, b);
+					}
+					else
+					{
+						m_root = b;
+						m_root->parent = nullptr;
+					}
+
+					a->recalc_weight();
+					b->recalc_weight();
+				}
+				// Большое правое вращение
+				else
+				{
+					auto* a = leaf;
+					auto* b = a->left;
+					auto* c = b->right;
+
+					b->connect(binary::side::right, c->left);
+					a->connect(binary::side::left, c->right);
+
+					c->connect(binary::side::left, b);
+					c->connect(binary::side::right, a);
+
+					if (parent)
+					{
+						parent->connect(side, c);
+					}
+					else
+					{
+						m_root = c;
+						m_root->parent = nullptr;
+					}
+
+					a->recalc_weight();
+					b->recalc_weight();
+					c->recalc_weight();
+				}
+			}
+
+			if (deep > 0)
+			{
+				return recalc_rebalance(leaf->parent, deep + static_cast<int>(need_recalc_parent) - 1);
 			}
 		}
 	}
