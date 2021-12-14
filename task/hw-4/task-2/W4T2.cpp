@@ -7,9 +7,9 @@
 #include <deque>
 #include <list>
 
-#define private public
+//#define private public
 #include "mytree.h"
-#undef private
+//#undef private
 
 //#include "avl-tree.h"
 
@@ -93,15 +93,15 @@ struct Rectangle
 	};
 };
 
-void emplace(std::vector<Rectangle<int>::Point>& storage, const int& x1, const int& y1, const int& x2, const int& y2)
+void emplace(std::vector<Rectangle<int>::Point>& storage, const int& xl, const int& yl, const int& xr, const int& yr)
 {
 	using vside = Rectangle<int>::Point::vside;
 	using hside = Rectangle<int>::Point::hside;
 
-	storage.emplace_back(std::min(x1, x2), std::max(y1, y2), vside::top,	hside::left);
-	storage.emplace_back(std::min(x1, x2), std::min(y1, y2), vside::bottom, hside::left);
-//	storage.emplace_back(std::max(x1, x2), std::max(y1, y2), vside::top,	hside::right);
-	storage.emplace_back(std::max(x1, x2), std::min(y1, y2), vside::bottom, hside::right);
+	storage.emplace_back(std::min(xl, xr), std::max(yl, yr), vside::top,	hside::left);
+	storage.emplace_back(std::min(xl, xr), std::min(yl, yr), vside::bottom, hside::left);
+	storage.emplace_back(std::max(xl, xr), std::max(yl, yr), vside::top,	hside::right);
+	storage.emplace_back(std::max(xl, xr), std::min(yl, yr), vside::bottom, hside::right);
 }
 
 template<class Tkey, class Tval>
@@ -321,19 +321,19 @@ struct map
 		//return ptunmap.end();
 	}
 
-	//inline size_t size() const
-	//{
-	//	return ptunmap.size();
-	//}
+	inline size_t size() const
+	{
+		return ptunmap.size();
+	}
 };
 
 
 void W4T2::main(std::istream& input, std::ostream& output)
 {
-	int x1, y1, x2, y2;
+	int xl, yl, xr, yr;
 
-	binary::tree<int, Rectangle<int>::Point> pttree;
-	//map<int, Rectangle<int>::Point> pttree;
+	//binary::tree<int, Rectangle<int>::Point> pttree;
+	map<int, Rectangle<int>::Point> pttree;
 
 	std::vector<Rectangle<int>::Point> ptstorage;
 
@@ -344,9 +344,9 @@ void W4T2::main(std::istream& input, std::ostream& output)
 
 	for (size_t idx = 0; idx < count; ++idx)
 	{
-		input >> x1 >> y1 >> x2 >> y2;
+		input >> xl >> yl >> xr >> yr;
 
-		emplace(ptstorage, x1, y1, x2, y2);
+		emplace(ptstorage, xl, yl, xr, yr);
 	}
 
 	std::sort(ptstorage.begin(), ptstorage.end());
@@ -359,20 +359,21 @@ void W4T2::main(std::istream& input, std::ostream& output)
 
 	++it_point;
 
-	while(it_point != ptstorage.end())
+	while (it_point != ptstorage.end())
 	{
 		auto it_pair = pttree.lower_bound(it_point->x); // ~ log(n)
 
 		// существует парная точка
-		if ((it_pair != pttree.end()) && ((*it_pair).val.x == it_point->x))
-		//if ((it_pair != pttree.end()) && (it_pair->second.x == it_point->x))
+		//if ((it_pair != pttree.end()) && ((*it_pair).val.x == it_point->x))
+		if ((it_pair != pttree.end()) && (it_pair->second.x == it_point->x))
 		{
 			// если парная точка - левая, значит это верхний левый угол "внешнего" прямоугольника
-			outer_count += static_cast<int>(((*it_pair).val.features & Rectangle<int>::Point::left) > 0);
-			//outer_count += static_cast<int>((it_pair->second.features & Rectangle<int>::Point::left) > 0);
+			//outer_count += static_cast<int>(((*it_pair).val.features & Rectangle<int>::Point::left) > 0);
+			outer_count += static_cast<int>((it_pair->second.features & Rectangle<int>::Point::left) > 0);
 
 			// уничтожаем парную точку
 			pttree.erase(it_pair);
+			std::advance(it_point, 1);
 			continue;
 		}
 		else
@@ -384,22 +385,28 @@ void W4T2::main(std::istream& input, std::ostream& output)
 				continue;
 			}
 
-			auto prev = std::prev(it_pair);
-
-			// если новая точка левая и предыдущая точка в дереве тоже левая
-			if (it_point->features & (*prev).val.features & Rectangle<int>::Point::left)
-			//if (it_point->features & prev->second.features & Rectangle<int>::Point::left)
+			if (pttree.size() > 0 && it_pair != pttree.begin())
 			{
-				// значит эта точка принадлежит "внутреннему" прямоугольнику (мы находимся в еще бОльшем прямоугольнике)
+				auto prev = std::prev(it_pair);
 
-				// дополнительно пропускаем следующую за ней точку
-				std::advance(it_point, 2);
-				continue;
+				if (prev != pttree.end())
+				{
+					// если новая точка левая и предыдущая точка в дереве тоже левая
+					//if (it_point->features & (*prev).val.features & Rectangle<int>::Point::left)
+					if (it_point->features & prev->second.features & Rectangle<int>::Point::left)
+					{
+						// значит эта точка принадлежит "внутреннему" прямоугольнику (мы находимся в еще бОльшем прямоугольнике)
+
+						// дополнительно пропускаем следующую за ней точку
+						std::advance(it_point, 2);
+						continue;
+					}
+				}
 			}
 
 			// иначе нужно учитывать эту точку
-			//pttree.emplace_hint(it_pair, it_point->x, *it_point);
-			pttree.emplace(it_point->x, *it_point);
+			pttree.emplace_hint(it_pair, it_point->x, *it_point);
+			//pttree.emplace(it_point->x, *it_point);
 		}
 
 		std::advance(it_point, 1);
@@ -410,6 +417,8 @@ void W4T2::main(std::istream& input, std::ostream& output)
 
 void W4T2::test(Test* const reference)
 {
+	volatile auto sz = sizeof(binary::node<int, int>);
+
 	//std::map<int, int> mp;
 	//binary::tree<int, int> tr;
 
@@ -471,8 +480,22 @@ void W4T2::test(Test* const reference)
 
 	if (reference != nullptr)
 	{
+		reference->open(*this).input("1\n-1 -1 1 1\n").expect("1\n");
+
 		reference->open(*this).input("3\n-3 -3 3 3\n-2 2 2 -2\n-1 -1 1 1\n").expect("1\n");
 		reference->open(*this).input("4\n0 0 3 3\n1 1 2 2\n100 100 101 101\n200 200 201 201\n").expect("3\n");
+
+		reference->open(*this).input("2\n-1 -1 1 1\n-1 2 1 3\n").expect("2\n");
+
+		reference->open(*this).input("2\n1 1 -1 -1\n1 2 -1 3\n").expect("2\n");
+
+		reference->open(*this).input("7\n-4 -4 -2 -2\n-1 -1 1 1\n-4 2 -2 4\n2 -4 4 -2\n2 2 4 4\n4 5 7 8\n5 6 6 7\n").expect("6\n");
+
+		reference->open(*this).input("8\n-4 -4 -2 -2\n-1 -1 1 1\n-4 2 -2 4\n2 -4 4 -2\n2 2 4 4\n4 5 7 8\n5 6 6 7\n-956 -83093 15643 1245\n").expect("1\n");
+
+		reference->open(*this).input("6\n-9 2 -5 4\n-9 -1 -5 1\n-3 -4 3 4\n-2 -2 2 2\n-1 -7 1 -5\n4 -1 6 1\n").expect("5\n");
+
+		reference->open(*this).input("5\n-1 2 1 4\n-2 1 5 5\n6 2 9 4\n-2 6 5 7\n-6 1 -4 3\n").expect("4\n");
 
 		const int inner_size = 10;
 		const int outer_size = 10000;

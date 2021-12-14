@@ -2,6 +2,7 @@
 #include <utility>
 #include <cstddef>
 #include <iostream>
+#include <limits>
 
 namespace binary
 {
@@ -12,16 +13,25 @@ namespace binary
 		parent
 	};
 
-	
+	constexpr binary::side sides[3] = { binary::side::left, binary::side::right, binary::side::parent };
+
 template<class Tkey, class Tval>
 struct node
 {
 	Tkey key;
 	Tval val;
 
-	node<Tkey, Tval>* left;
-	node<Tkey, Tval>* right;
-	node<Tkey, Tval>* parent;
+	union
+	{
+		node<Tkey, Tval>* pointers[3];
+
+		struct
+		{
+			node<Tkey, Tval>* left;
+			node<Tkey, Tval>* right;
+			node<Tkey, Tval>* parent;
+		};
+	};
 
 	node(const Tkey& key, const Tval& val)
 		: key(key), val(val), left{ nullptr }, right{ nullptr }, parent{ nullptr }, m_weight(0)
@@ -143,6 +153,9 @@ class tree
 {
 	node<Tkey, Tval>* m_root;
 
+	node<Tkey, Tval>* m_max{ nullptr };
+	node<Tkey, Tval>* m_min{ nullptr };
+
 	void free(node<Tkey, Tval>* root)
 	{
 		if (root != nullptr)
@@ -169,32 +182,16 @@ public:
 	tree(const Tkey& key, const Tval& val)
 		: m_root(new node<Tkey, Tval>(key, val))
 	{;}
-
-private:
-	explicit tree(node<Tkey, Tval>* root)
-		: m_root(root)
-	{;}
-
+	
 	~tree()
 	{
 		free(m_root);
 	}
 
-	//inline void print() const
-	//{
-	//	print(m_root);
-	//}
-
-	//void print(node<Tkey, Tval>* root, const size_t level = 0) const
-	//{
-	//	if (root != nullptr)
-	//	{
-	//		std::cout << "level " << level << ": " << root->key << std::endl;
-
-	//		print(root->left, level + 1);
-	//		print(root->right, level + 1);
-	//	}
-	//}
+private:
+	explicit tree(node<Tkey, Tval>* root)
+		: m_root(root)
+	{;}
 
 	void recalc_rebalance(node<Tkey, Tval>* leaf, const int deep = 2)
 	{
@@ -326,37 +323,23 @@ private:
 
 	std::pair<node<Tkey, Tval>*, binary::side> private_explore(node<Tkey, Tval>* root, const Tkey& key)
 	{
-		while (root)
+		auto index = static_cast<uint8_t>(root->key < key) | (static_cast<uint8_t>(root->key == key) << 1U);
+		auto* next = root->pointers[index];
+
+		while (next && root->key != key)
 		{
-			if (root->key == key)
-			{
-				return std::make_pair(root, binary::side::parent);
-			}
-			else if (key < root->key)
-			{
-				if (root->left)
-				{
-					root = root->left;
-					continue;
-				}
+			root = next;
 
-				return std::make_pair(root, binary::side::left);
-			}
-			else
-			{
-				if (root->right)
-				{
-					root = root->right;
-					continue;
-				}
+			index = static_cast<uint8_t>(root->key < key) + (static_cast<uint8_t>(root->key == key) << 1U);
 
-				return std::make_pair(root, binary::side::right);
-			}
+			next = root->pointers[index];
 		}
-		
-		throw "shit happend";
 
-		return std::make_pair(nullptr, binary::side::parent);
+		return std::make_pair(root, sides[index]);
+		
+		//throw "shit happend";
+
+		//return std::make_pair(nullptr, binary::side::parent);
 	}
 
 	inline std::pair<node<Tkey, Tval>*, binary::side> private_explore(const Tkey& key)
@@ -371,6 +354,12 @@ private:
 		if (need_recalc_weight)
 		{
 			recalc_rebalance(child);
+		}
+
+		if (child)
+		{
+			m_max = (!m_max || (m_max->val < child->val)) ? child : m_max;
+			m_min = (!m_min || (child->val < m_min->val)) ? child : m_min;
 		}
 
 		switch (side)
@@ -511,14 +500,14 @@ private:
 		return root;
 	}
 
-	static node<Tkey, Tval>* private_find_max(node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max())
+	node<Tkey, Tval>* private_find_max(node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max())
 	{
-		return private_lift_down(root, binary::side::right, deep);
+		return m_max ? m_max : m_max = private_lift_down(root, binary::side::right, deep);
 	}
 
-	static node<Tkey, Tval>* private_find_min(node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max())
+	node<Tkey, Tval>* private_find_min(node<Tkey, Tval>* root, size_t deep = std::numeric_limits<size_t>::max())
 	{
-		return private_lift_down(root, binary::side::left, deep);
+		return m_min ? m_min : m_min = private_lift_down(root, binary::side::left, deep);
 	}
 
 	void private_erase(node<Tkey, Tval>* search_root, const Tkey& key)
@@ -530,12 +519,12 @@ private:
 			if (root->is_node())
 			{
 				// найдем максимум в левом поддереве и поменяем его с удаляемой вершиной, после чего вызовем ребалансировку
-				auto* max = private_find_max(root->left);
+				auto* max = private_lift_down(root->left, binary::side::right, std::numeric_limits<size_t>::max()); // private_find_max(root->left);
 
 				// на левой ветке все пусто
 				if (!max)
 				{
-					max = private_find_min(root->right);
+					max = private_lift_down(root->right, binary::side::left, std::numeric_limits<size_t>::max()); //private_find_min(root->right);
 				}
 
 				root->swap(max);
@@ -568,7 +557,6 @@ private:
 		using difference_type	= ptrdiff_t;
 
 		iterator_type* p_root;
-		//iterator_type* p_next;
 		iterator_type* p_previous;
 	private:
 		NodeTreeIterator(Iter* root, Iter* previous = nullptr)
@@ -602,7 +590,7 @@ private:
 
 				if (p_root->right)
 				{
-					p_root = private_find_min(p_root->right);
+					p_root = private_lift_down(p_root->right, binary::side::left, std::numeric_limits<size_t>::max());
 				}
 				else
 				{
@@ -626,7 +614,7 @@ private:
 
 				if (p_root->left)
 				{
-					p_root = private_find_max(p_root->left);
+					p_root = private_lift_down(p_root->left, binary::side::right, std::numeric_limits<size_t>::max());
 				}
 				else
 				{
@@ -653,19 +641,19 @@ private:
 	using iterator = typename NodeTreeIterator<node<Tkey, Tval>>;
 
 public:
-	inline iterator begin() const
+	inline iterator begin()
 	{
-		return iterator(private_find_min(m_root));
+		return iterator(this->private_find_min(m_root));
 	}
 
-	inline iterator end() const
+	inline iterator end()
 	{
-		return iterator(nullptr, private_find_max(m_root));
+		return iterator(nullptr, this->private_find_max(m_root));
 	}
 
 	inline iterator lower_bound(const Tkey& key)
 	{
-		auto r1 = private_lower_bound(key);
+		//auto r1 = private_lower_bound(key);
 		auto r2 = private_explore(key);
 
 		if (r2.second == side::right)
@@ -676,7 +664,6 @@ public:
 		{
 			return iterator(r2.first);
 		}
-		//return iterator(private_lower_bound(key));
 	}
 
 	inline void erase(iterator wh) noexcept

@@ -1,34 +1,4 @@
 ﻿  W4T2.cpp
 F:\UserData\Projects\Yandex\yandex-unn\test.h(37,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
 F:\UserData\Projects\Yandex\yandex-unn\test.h(53,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-F:\UserData\Projects\Yandex\yandex-unn\task\hw-4\task-2\mytree.h(122,30): warning C4267: аргумент: преобразование из "size_t" в "_Ty2"; возможна потеря данных
-          with
-          [
-              _Ty2=int
-          ]
-F:\UserData\Projects\Yandex\yandex-unn\task\hw-4\task-2\mytree.h(121): message : во время компиляции функции-члена класс шаблон "std::pair<int,int> binary::node<Tkey,Tval>::get_balances(void) const"
-          with
-          [
-              Tkey=int,
-              Tval=Rectangle<int>::Point
-          ]
-F:\UserData\Projects\Yandex\yandex-unn\task\hw-4\task-2\mytree.h(205): message : выполняется компиляция ссылки на экземпляр шаблон функции "std::pair<int,int> binary::node<Tkey,Tval>::get_balances(void) const"
-          with
-          [
-              Tkey=int,
-              Tval=Rectangle<int>::Point
-          ]
-F:\UserData\Projects\Yandex\yandex-unn\task\hw-4\task-2\W4T2.cpp(367): message : выполняется компиляция ссылки на экземпляр класс шаблон функции "binary::node<Tkey,Tval>"
-          with
-          [
-              Tkey=int,
-              Tval=Rectangle<int>::Point
-          ]
-F:\UserData\Projects\Yandex\yandex-unn\task\hw-4\task-2\mytree.h(122,30): warning C4267: аргумент: преобразование из "size_t" в "_Ty1"; возможна потеря данных
-          with
-          [
-              _Ty1=int
-          ]
-F:\UserData\Projects\Yandex\yandex-unn\task\hw-4\task-2\mytree.h(58): warning C4715: binary::node<int,Rectangle<int>::Point>::select: значение возвращается не при всех путях выполнения
-F:\UserData\Projects\Yandex\yandex-unn\task\hw-4\task-2\mytree.h(68): warning C4715: binary::node<int,Rectangle<int>::Point>::select: значение возвращается не при всех путях выполнения
   yandex-unn.vcxproj -> F:\UserData\Projects\Yandex\yandex-unn\x64\Debug\yandex-unn.exe
