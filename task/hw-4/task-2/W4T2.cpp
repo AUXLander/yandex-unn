@@ -332,8 +332,8 @@ void W4T2::main(std::istream& input, std::ostream& output)
 {
 	int xl, yl, xr, yr;
 
-	//binary::tree<int, Rectangle<int>::Point> pttree;
-	map<int, Rectangle<int>::Point> pttree;
+	binary::tree<int, Rectangle<int>::Point> pttree;
+	//map<int, Rectangle<int>::Point> pttree;
 
 	std::vector<Rectangle<int>::Point> ptstorage;
 
@@ -364,12 +364,12 @@ void W4T2::main(std::istream& input, std::ostream& output)
 		auto it_pair = pttree.lower_bound(it_point->x); // ~ log(n)
 
 		// существует парная точка
-		//if ((it_pair != pttree.end()) && ((*it_pair).val.x == it_point->x))
-		if ((it_pair != pttree.end()) && (it_pair->second.x == it_point->x))
+		if ((it_pair != pttree.end()) && ((*it_pair).val.x == it_point->x))
+		//if ((it_pair != pttree.end()) && (it_pair->second.x == it_point->x))
 		{
 			// если парная точка - левая, значит это верхний левый угол "внешнего" прямоугольника
-			//outer_count += static_cast<int>(((*it_pair).val.features & Rectangle<int>::Point::left) > 0);
-			outer_count += static_cast<int>((it_pair->second.features & Rectangle<int>::Point::left) > 0);
+			outer_count += static_cast<int>(((*it_pair).val.features & Rectangle<int>::Point::left) > 0);
+			//outer_count += static_cast<int>((it_pair->second.features & Rectangle<int>::Point::left) > 0);
 
 			// уничтожаем парную точку
 			pttree.erase(it_pair);
@@ -385,15 +385,15 @@ void W4T2::main(std::istream& input, std::ostream& output)
 				continue;
 			}
 
-			if (pttree.size() > 0 && it_pair != pttree.begin())
+			//if (pttree.size() > 0 && it_pair != pttree.begin())
 			{
 				auto prev = std::prev(it_pair);
 
 				if (prev != pttree.end())
 				{
 					// если новая точка левая и предыдущая точка в дереве тоже левая
-					//if (it_point->features & (*prev).val.features & Rectangle<int>::Point::left)
-					if (it_point->features & prev->second.features & Rectangle<int>::Point::left)
+					if (it_point->features & (*prev).val.features & Rectangle<int>::Point::left)
+					//if (it_point->features & prev->second.features & Rectangle<int>::Point::left)
 					{
 						// значит эта точка принадлежит "внутреннему" прямоугольнику (мы находимся в еще бОльшем прямоугольнике)
 
